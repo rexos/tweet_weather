@@ -39,6 +39,7 @@ auth.set_access_token(access_key, access_secret)
 gathered = []
 root_weather_url = "http://openweathermap.org/data/2.5/weather?lat=%s&lon=%s"
 afinn_list_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
+api = tweepy.API(auth)
 
 """
 Checks if there is a working Internet access
@@ -135,9 +136,10 @@ def main():
     # get about 1% of incoming tweets
     print( 'Fetching, localizing and analyzing Twitter stream data ( could take a while due to the few geotagged tweets ) ...' )
     requestUrl = "https://api.twitter.com/1.1/search/tweets.json?q=&geocode=-22.912214,-43.230182,1km&lang=pt&result_type=recent"
-    response = urllib.urlopen(requestUrl)
-    tweets = jsn.load(response)
-    print tweets
+    response = api.search(q='Megadeth', lang='es')
+    print(len(response))
+    for status in response:
+        print status.text
     clean_tmp_files()
 
 if __name__ == "__main__":
