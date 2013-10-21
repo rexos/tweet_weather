@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello from Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap-responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.js') }}" ></script>
+  </head>
+  <body>
+    <div class="wrapper" style="margin: 0 auto">
+      {% block content %}
+      {% endblock %}
+      <div class="center">
+	<h5>Developed by <a href="https://github.com/rexos">Alex Pellegrini</a> & <a href="https://github.com/wrousseau">Woody Rousseau</a></h5>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Data List</h1>
+</div>
+<table class="table table-striped">
+<tr>
+  <th>ID</th>
+  <th>Sent.Value</th>
+  <th>Weather</th>
+  <th>Weather Infos</th>
+</tr>
+{% for val in data %}
+<tr>
+  <td>
+    {% print(val[0]) %}
+  </td>
+  <td>
+    {% print(val[1]) %}
+  </td>
+  <td>
+    {% print(val[2]) %}
+  </td>
+  <td>
+    {% print(val[3]) %}
+  </td>
+</tr>
+{% endfor %}
+</table>
+<a href="/">
+  <button class="btn btn-primary btn-large"><i class="icon-arrow-left icon-white"></i>&nbsp;Back</button>
+</a>
+{% endblock %}
