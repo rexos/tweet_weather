@@ -1,3 +1,7 @@
 The following packages need to be installed : 
 pip install tweepy
 easy_install pysqlite
+
+A NLTK resource is also needed :
+>> nltk.download()
+Search and install "maxent_treebank_pos_tagger"

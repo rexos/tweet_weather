@@ -116,7 +116,8 @@ def parse_text( status ):
         else:
             if 'weather' in weather.keys():
                 main = weather['weather'][0]
-                print( main['main'], status.text )
+                print( main['main'], status.text, score )
+
                 gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
                 cursor.execute("INSERT INTO tweets(value,weather,infos) VALUES(?, ?, ?)", [score, main['main'], main['description']])
                 conn.commit()
@@ -136,10 +137,21 @@ def main():
     # get about 1% of incoming tweets
     print( 'Fetching, localizing and analyzing Twitter stream data ( could take a while due to the few geotagged tweets ) ...' )
     requestUrl = "https://api.twitter.com/1.1/search/tweets.json?q=&geocode=-22.912214,-43.230182,1km&lang=pt&result_type=recent"
-    response = api.search(q='Megadeth', lang='es')
-    print(len(response))
-    for status in response:
-        print status.text
+
+    query = 'lang:en'
+    page_count = 0
+    for tweets in tweepy.Cursor(api.search, q=query, lang='en', count=100, result_type="recent", include_entities=True).pages():
+        filteredTweets = [tweet for tweet in tweets if tweet.coordinates]
+        if  not filteredTweets:
+            continue
+        page_count += 1
+        for filteredTweet in filteredTweets:
+            parse_text(filteredTweet)
+        # print just the first tweet out of every page of 100 tweets
+        # stop after retrieving 200 pages
+        if page_count >= 200:
+            break
+
     clean_tmp_files()
 
 if __name__ == "__main__":
