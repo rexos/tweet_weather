@@ -41,16 +41,16 @@ class TweetWeather(threading.Thread):
 
 	def init_twitter_api(self):
 		# obtaining twitter app authorization
-		auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-		auth.set_access_token(access_key, access_secret)
-		gathered = []
-		self.api = tweepy.API(auth)
+		self.auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+		self.auth.set_access_token(access_key, access_secret)
+		self.gathered = []
+		self.api = tweepy.API(self.auth)
 
 	def init_external_resources(self):
 		self.root_weather_url = "http://openweathermap.org/data/2.5/weather?lat=%s&lon=%s"
 		self.afinn_list_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
 		print('Downloading, unzipping and importing external data ...')
-		urllib.urlretrieve( afinn_list_url, 'afinn.zip' )
+		urllib.urlretrieve( self.afinn_list_url, 'afinn.zip' )
 		zip = zipfile.ZipFile('afinn.zip')
 		self.afinn = dict(map(lambda (k,v): ( unicode(k, 'utf-8'), int(v) ),
 						 [ line.split('\t') for line in open(zip.extract('AFINN/AFINN-111.txt')) ]))
@@ -118,7 +118,7 @@ class TweetWeather(threading.Thread):
 					main = weather['weather'][0]
 					print( main['main'], status.text, score )
 
-					gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
+					self.gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
 					cursor.execute("INSERT INTO tweets(value,weather,infos) VALUES(?, ?, ?)", [score, main['main'], main['description']])
 					conn.commit()
 		conn.close()
