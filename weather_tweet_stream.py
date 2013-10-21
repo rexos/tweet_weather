@@ -29,8 +29,8 @@ from pysqlite2 import dbapi2 as db # sqlite db module
 # secret twitter app credentials
 consumer_key = "Zlf1laZTxrnydXBMZfeA"
 consumer_secret = "rNSask1WRb8mLbbzTZo6vAHB27EwNRmy4AA5c3G04"
-access_key = "1889545957-V1RGrOLo5W4gQPycPB8cHErV1kr5DMlbaGihCe4"
-access_secret = "VKDlwwsCM8VtjsD8XvkFGwMmL4uxDbV32wQu8jKdoAo" 
+access_key = "1889545957-BFTycJVNsAgtlfdKbalV1rwTJqoGGhj0iTxIo6k"
+access_secret = "NmfEez4FykN1iGZYUfjYzUvUIksNne2xi6Ovo9Wq00" 
 weather_appid = "&APPID=4e04cba42b432a01c4226e186f3d23d2"
 
 # obtaining twitter app authorization
