@@ -12,8 +12,6 @@ import os
 import time
 import matplotlib.pyplot as plt
 import simplejson as jsn
-from pysqlite2 import dbapi2 as db # sqlite db module
-
 
 # secret twitter app credentials
 consumer_key = "Zlf1laZTxrnydXBMZfeA"
@@ -22,38 +20,41 @@ access_key = "1889545957-BFTycJVNsAgtlfdKbalV1rwTJqoGGhj0iTxIo6k"
 access_secret = "NmfEez4FykN1iGZYUfjYzUvUIksNne2xi6Ovo9Wq00"
 weather_appid = "&APPID=4e04cba42b432a01c4226e186f3d23d2"
 
-# obtaining twitter app authorization
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_key, access_secret)
-gathered = []
-root_weather_url = "http://openweathermap.org/data/2.5/weather?lat=%s&lon=%s"
-afinn_list_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
-api = tweepy.API(auth)
-
-"""
-Checks if there is a working Internet access
-"""
-try:
-	res = urllib.urlopen( 'http://google.com' )
-except:
-	sys.exit( "Absent Internet Access, please retry" )
-
-print('Downloading, unzipping and importing external data ...')
-urllib.urlretrieve( afinn_list_url, 'afinn.zip' )
-zip = zipfile.ZipFile('afinn.zip')
-afinn = dict(map(lambda (k,v): ( unicode(k, 'utf-8'), int(v) ),
-				 [ line.split('\t') for line in open(zip.extract('AFINN/AFINN-111.txt')) ]))
-print('>> Done <<')
-
 class TweetWeather(threading.Thread):
 	def __init__(self, name = ''):
+		"""
+		Checks if there is a working Internet access
+		"""
+		try:
+			res = urllib.urlopen( 'http://google.com' )
+		except:
+			sys.exit( "Absent Internet Access, please retry" )
 		threading.Thread.__init__(self)
 		self.name = name
 		self.Terminated = False
 
 	def run(self):
+		self.init_twitter_api()
+		self.init_external_resources()
 		self.init_database()
 		self.gatherTweets()
+
+	def init_twitter_api(self):
+		# obtaining twitter app authorization
+		auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+		auth.set_access_token(access_key, access_secret)
+		gathered = []
+		self.api = tweepy.API(auth)
+
+	def init_external_resources(self):
+		self.root_weather_url = "http://openweathermap.org/data/2.5/weather?lat=%s&lon=%s"
+		self.afinn_list_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
+		print('Downloading, unzipping and importing external data ...')
+		urllib.urlretrieve( afinn_list_url, 'afinn.zip' )
+		zip = zipfile.ZipFile('afinn.zip')
+		self.afinn = dict(map(lambda (k,v): ( unicode(k, 'utf-8'), int(v) ),
+						 [ line.split('\t') for line in open(zip.extract('AFINN/AFINN-111.txt')) ]))
+		print('>> Done <<')
 
 	def init_database(self):
 		"""
@@ -104,9 +105,9 @@ class TweetWeather(threading.Thread):
 		parsed = self.sanitize_text( status.text )
 		score = 0
 		for word in parsed:
-				score += afinn.get(word,0)
+				score += self.afinn.get(word,0)
 		if score != 0 :
-			weather_url = root_weather_url %tuple( map( lambda x: str(x), status.coordinates['coordinates'] ) )
+			weather_url = self.root_weather_url %tuple( map( lambda x: str(x), status.coordinates['coordinates'] ) )
 			response = urllib.urlopen(weather_url)
 			try:
 				weather = jsn.load( response )
@@ -134,7 +135,7 @@ class TweetWeather(threading.Thread):
 
 		query = 'lang:en'
 		page_count = 0
-		for tweets in tweepy.Cursor(api.search, q=query, lang='en', count=100, result_type="recent", include_entities=True).pages():
+		for tweets in tweepy.Cursor(self.api.search, q=query, lang='en', count=100, result_type="recent", include_entities=True).pages():
 			filteredTweets = [tweet for tweet in tweets if tweet.coordinates]
 			if  not filteredTweets:
 				continue
