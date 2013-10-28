@@ -3,32 +3,37 @@
 <div class="page-header">
   <h1>Data List</h1>
 </div>
-<table id="weather-table" class="table table-striped">
-<tr>
-  <th>ID</th>
-  <th>Sent.Value</th>
-  <th>Weather</th>
-  <th>Weather Infos</th>
-</tr>
-{% for val in data %}
-<tr>
-  <td>
-    {% print(val[0]) %}
-  </td>
-  <td>
-    {% print(val[1]) %}
-  </td>
-  <td>
-    {% print(val[2]) %}
-  </td>
-  <td>
-    {% print(val[3]) %}
-  </td>
-</tr>
-{% endfor %}
-</table>
+<div style="height:600px; overflow:auto; border:1px solid black">
+  <table id="weather-table" class="table table-striped" style="height:100%">
+    <tr id="header-line">
+      <th>ID</th>
+      <th>Sent.Value</th>
+      <th>Weather</th>
+      <th>Weather Infos</th>
+    </tr>
+    {% for val in data %}
+    <tr>
+      <td>
+	{% print(val[0]) %}
+      </td>
+      <td>
+	{% print(val[1]) %}
+      </td>
+      <td>
+	{% print(val[2]) %}
+      </td>
+      <td>
+	{% print(val[3]) %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
 <a href="/">
   <button class="btn btn-primary btn-large"><i class="icon-arrow-left icon-white"></i>&nbsp;Back</button>
+</a>
+<a href="/plot">
+  <button class="btn btn-info btn-large"><i class="icon-eye-open icon-white"></i>&nbsp;Plot</button>
 </a>
 
 <script src="/static/js/post.js"></script>

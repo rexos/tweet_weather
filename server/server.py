@@ -23,15 +23,14 @@ PORT = 5000
 app = Flask(__name__)
 
 @app.route('/')
-@app.route('/<name>')
-def home(name=None):
-	values = [ 0,1,2,3,4,5 ]
-	return render_template('hello.html',name=name, values=values)
+def home():
+	return render_template('hello.html')
 
 @app.route('/list_data')
 def list_data():
 	cur = db.connect('data.sqlite').cursor()
-	data = cur.execute('SELECT * FROM tweets').fetchall()
+	cur.execute('SELECT * FROM tweets ORDER BY id DESC')
+	data = cur.fetchall()
 	return render_template('list.html', data=data)
 
 @app.route('/socket.io/<path:remaining>')
@@ -49,20 +48,9 @@ if __name__ == '__main__':
 	twThread = TweetWeather(server, name = "Tweet-Weather-Thread")
 	gevent.spawn(twThread.new_post,server)
 	twThread.start()
-	server.serve_forever()
-
-	'''
-	if not server.started:
-        server.start()
-    try:
-        server._stop_event.wait()
-    finally:
-        Greenlet.spawn(server.stop, timeout=stop_timeout).join()'''
-
-	while True:
-	    try:
-	        time.sleep(.3)
-	    except KeyboardInterrupt:
-	        twThread.stop()
-	        server.stop()
-	        sys.exit()
+	try:
+		server.serve_forever()
+	except KeyboardInterrupt:
+	    twThread.stop()
+	    server.stop()
+	    sys.exit()
