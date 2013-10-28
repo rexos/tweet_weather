@@ -1,4 +1,7 @@
 import threading
+from pysqlite2 import dbapi2 as db
+import simplejson as jsn
+import nltk
 import tweepy
 import urllib
 import os
