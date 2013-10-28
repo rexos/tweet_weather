@@ -38,7 +38,7 @@ class TweetWeather(threading.Thread):
 		# obtaining twitter app authorization
 		auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 		auth.set_access_token(access_key, access_secret)
-		gathered = []
+		self.gathered = []
 		self.api = tweepy.API(auth)
 
 	def init_external_resources(self):
@@ -114,7 +114,7 @@ class TweetWeather(threading.Thread):
 					main = weather['weather'][0]
 					print( main['main'], status.text, score )
 
-					gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
+					self.gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
 					cursor.execute("INSERT INTO tweets(value,weather,infos) VALUES(?, ?, ?)", [score, main['main'], main['description']])
 					conn.commit()
 		conn.close()
