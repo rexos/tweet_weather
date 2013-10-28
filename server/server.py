@@ -15,28 +15,15 @@ sys.path.append(path)
 
 app = Flask(__name__)
 
-def comet_update_list_handler(obj_response, sleep_time):
-
-        obj_response.html_append('#weather_table', '<tr><td>'+item[0]+'</td><td>'+item[1]+'</td><td>'+item[2]+'</td><td>'+item[3]+'</td></tr>')
-
-        # Yielding tells Sijax to flush the data to the browser.
-        # This only works for Streaming functions (Comet or Upload)
-        # and would not work for normal Sijax functions
-        yield obj_response
-
-        if i != 5:
-            time.sleep(sleep_time)
-
 @app.route('/')
-@app.route('/<name>')
-def home(name=None):
-	values = [ 0,1,2,3,4,5 ]
-	return render_template('hello.html',name=name, values=values)
+def home():
+	return render_template('hello.html')
 
 @app.route('/list_data')
 def list_data():
 	cur = db.connect('data.sqlite').cursor()
-	data = cur.execute('SELECT * FROM tweets').fetchall()
+	cur.execute('SELECT * FROM tweets ORDER BY id DESC')
+	data = cur.fetchall()
 	return render_template('list.html', data=data)
 
 if __name__ == '__main__':
