@@ -1,7 +1,10 @@
 The following packages need to be installed : 
 pip install tweepy
+pip install gevent-socketio
 easy_install pysqlite
 
 A NLTK resource is also needed :
 >> nltk.download()
 Search and install "maxent_treebank_pos_tagger"
+
+brew install libevent

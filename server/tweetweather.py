@@ -15,7 +15,7 @@ weather_appid = "&APPID=4e04cba42b432a01c4226e186f3d23d2"
 
 class TweetWeather(threading.Thread):
 
-	def __init__(self, name = ''):
+	def __init__(self, server, name = ''):
 		import sys
 		"""
 		Checks if there is a working Internet access
@@ -26,7 +26,13 @@ class TweetWeather(threading.Thread):
 			sys.exit( "Absent Internet Access, please retry" )
 		threading.Thread.__init__(self)
 		self.name = name
+		self.server = server
 		self.Terminated = False
+
+	def new_post(self, *args):
+		pkt = dict(type="event", name="new_post", args=args, endpoint="/new_posts")
+		for sessid, socket in self.server.sockets.iteritems():
+			socket.send_packet(pkt)
 
 	def run(self):
 		self.init_twitter_api()
@@ -116,6 +122,7 @@ class TweetWeather(threading.Thread):
 
 					self.gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
 					cursor.execute("INSERT INTO tweets(value,weather,infos) VALUES(?, ?, ?)", [score, main['main'], main['description']])
+					self.new_post(score, main['main'], main['description'])
 					conn.commit()
 		conn.close()
 
