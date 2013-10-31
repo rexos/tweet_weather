@@ -39,6 +39,7 @@ class TweetWeather(threading.Thread):
 		self.init_external_resources()
 		self.init_database()
 		self.gatherTweets()
+		self.__init__(self.server,name=self.name)
 
 	def init_twitter_api(self):
 		# obtaining twitter app authorization

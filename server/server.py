@@ -42,12 +42,19 @@ def socketio(remaining):
                          exc_info=True)
     return Response()
 
+@app.route('/start')
+def start_fetch():
+	twThread.start()
+
+
+@app.route('/stop')
+def stop_fetch():
+	twThread.stop()
+
 if __name__ == '__main__':
-	# app.run()
 	server = SocketIOServer(('', PORT), app, resource="socket.io")
 	twThread = TweetWeather(server, name = "Tweet-Weather-Thread")
 	gevent.spawn(twThread.new_post,server)
-	twThread.start()
 	try:
 		server.serve_forever()
 	except KeyboardInterrupt:
