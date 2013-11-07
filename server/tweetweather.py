@@ -74,6 +74,8 @@ class TweetWeather(threading.Thread):
 							   "id integer PRIMARY KEY AUTOINCREMENT," + \
 							   "value integer NOT NULL," + \
 							   "weather VARCHAR(255) NOT NULL," + \
+					                   "latitude REAL NOT NULL," + \
+					                   "longitude REAL NOT NULL," + \
 							   "infos VARCHAR(255) )")
 			conn.commit()
 			conn.close()
@@ -122,7 +124,8 @@ class TweetWeather(threading.Thread):
 					print( main['main'], status.text, score )
 
 					self.gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
-					cursor.execute("INSERT INTO tweets(value,weather,infos) VALUES(?, ?, ?)", [score, main['main'], main['description']])
+					cursor.execute("INSERT INTO tweets(value,weather,latitude,longitude,infos) VALUES(?, ?, ?, ?, ?)", 
+						       [score, main['main'], status.coordinates['coordinates'][0], status.coordinates['coordinates'][1], main['description']])
 					self.new_post(score, main['main'], main['description'])
 					conn.commit()
 		conn.close()

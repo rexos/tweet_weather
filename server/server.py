@@ -28,9 +28,11 @@ def home():
 
 @app.route('/list_data')
 def list_data():
-	cur = db.connect('data.sqlite').cursor()
-	cur.execute('SELECT * FROM tweets ORDER BY id DESC')
-	data = cur.fetchall()
+	data = []
+	if os.path.exists('data.sqlite'):
+		cur = db.connect('data.sqlite').cursor()
+		cur.execute('SELECT id,value,weather,infos FROM tweets ORDER BY id DESC')
+		data = cur.fetchall()
 	return render_template('list.html', data=data)
 
 @app.route('/socket.io/<path:remaining>')
