@@ -10,6 +10,7 @@ import threading
 from numpy import arange
 import nltk
 import os
+from analysis import Analyzer
 import time
 import matplotlib.pyplot as plt
 import simplejson as jsn
@@ -54,8 +55,9 @@ def stop_fetch():
 	twThread.stop()
 
 if __name__ == '__main__':
+	analyzer = Analyzer()
 	server = SocketIOServer(('', PORT), app, resource="socket.io")
-	twThread = TweetWeather(server, name = "Tweet-Weather-Thread")
+	twThread = TweetWeather(server, analyzer, name = "Tweet-Weather-Thread")
 	gevent.spawn(twThread.new_post,server)
 	try:
 		server.serve_forever()

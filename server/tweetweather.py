@@ -1,9 +1,8 @@
 import threading
 from pysqlite2 import dbapi2 as db
 import simplejson as jsn
-import nltk
-import tweepy
 import urllib
+import tweepy
 import os
 
 # secret twitter app credentials
@@ -15,7 +14,7 @@ weather_appid = "&APPID=4e04cba42b432a01c4226e186f3d23d2"
 
 class TweetWeather(threading.Thread):
 
-	def __init__(self, server, name = ''):
+	def __init__(self, server, analyzer, name = ''):
 		import sys
 		"""
 		Checks if there is a working Internet access
@@ -27,6 +26,8 @@ class TweetWeather(threading.Thread):
 		threading.Thread.__init__(self)
 		self.name = name
 		self.server = server
+		self.analyzer = analyzer
+		self.root_weather_url = "http://openweathermap.org/data/2.5/weather?lat=%s&lon=%s"
 		self.Terminated = False
 
 	def new_post(self, *args):
@@ -36,10 +37,9 @@ class TweetWeather(threading.Thread):
 
 	def run(self):
 		self.init_twitter_api()
-		self.init_external_resources()
 		self.init_database()
 		self.gatherTweets()
-		self.__init__(self.server,name=self.name)
+		self.__init__(self.server,self.analyzer, name=self.name)
 
 	def init_twitter_api(self):
 		# obtaining twitter app authorization
@@ -48,18 +48,7 @@ class TweetWeather(threading.Thread):
 		self.gathered = []
 		self.api = tweepy.API(auth)
 
-	def init_external_resources(self):
-		import zipfile
-		self.root_weather_url = "http://openweathermap.org/data/2.5/weather?lat=%s&lon=%s"
-		self.afinn_list_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
-		print('Downloading, unzipping and importing external data ...')
-		urllib.urlretrieve( self.afinn_list_url, 'afinn.zip' )
-		zip = zipfile.ZipFile('afinn.zip')
-		self.afinn = dict(map(lambda (k,v): ( unicode(k, 'utf-8'), int(v) ),
-						 [ line.split('\t') for line in open(zip.extract('AFINN/AFINN-111.txt')) ]))
-		print('>> Done <<')
-
-	def init_database(self):
+       	def init_database(self):
 		"""
 		Initializes an sqlite database where evaluated tweets
 		will be saved the table created has an id primary key
@@ -84,17 +73,6 @@ class TweetWeather(threading.Thread):
 			print("Connecting to sqlite database")
 			print(">> Done <<")
 
-	def sanitize_text(self,text ):
-		"""
-		Extracts the most meaningful words from the
-		tweets body text and returns a list composed
-		by them.
-		"""
-		tokens = nltk.word_tokenize( text )
-		tagged = nltk.pos_tag(tokens)
-		parsed = [ word for (word, tag) in tagged if tag in ['JJ', 'NN', 'VB', 'NNS', 'JJR', 'JJS', 'PRP', 'RBR', 'RBS'] ]
-		return parsed
-
 	def parse_text(self,status ):
 		"""
 		preforms a very basic sentiment analysis on
@@ -107,35 +85,24 @@ class TweetWeather(threading.Thread):
 		"""
 		conn = db.connect('data.sqlite')
 		cursor = conn.cursor()
-		parsed = self.sanitize_text( status.text )
-		score = 0
-		for word in parsed:
-				score += self.afinn.get(word,0)
-		if score != 0 :
-			weather_url = self.root_weather_url %tuple( map( lambda x: str(x), status.coordinates['coordinates'] ) )
-			response = urllib.urlopen(weather_url)
-			try:
-				weather = jsn.load( response )
-			except:
-				print('Program --> Tweet not saved due to invalid weather json')
-			else:
-				if 'weather' in weather.keys():
-					main = weather['weather'][0]
-					print( main['main'], status.text, score )
-
-					self.gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
-					cursor.execute("INSERT INTO tweets(value,weather,latitude,longitude,infos) VALUES(?, ?, ?, ?, ?)", 
-						       [score, main['main'], status.coordinates['coordinates'][0], status.coordinates['coordinates'][1], main['description']])
-					self.new_post(score, main['main'], main['description'])
-					conn.commit()
+		score = self.analyzer.analyze(status.text)
+		weather_url = self.root_weather_url %tuple( map( lambda x: str(x), status.coordinates['coordinates'] ) )
+		response = urllib.urlopen(weather_url)
+		try:
+			weather = jsn.load( response )
+		except:
+			print('Program --> Tweet not saved due to invalid weather json')
+		else:
+			if 'weather' in weather.keys():
+				main = weather['weather'][0]
+				print( main['main'], status.text, score )
+				
+				self.gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
+				cursor.execute("INSERT INTO tweets(value,weather,latitude,longitude,infos) VALUES(?, ?, ?, ?, ?)", 
+					       [score, main['main'], status.coordinates['coordinates'][0], status.coordinates['coordinates'][1], main['description']])
+				self.new_post(score, main['main'], main['description'])
+				conn.commit()
 		conn.close()
-
-	def clean_tmp_files(self):
-		print("Cleaning current directory from temporary files ...")
-		os.remove('afinn.zip')
-		os.remove('AFINN/AFINN-111.txt')
-		os.rmdir('AFINN')
-		print(">> Done <<")
 
 	def gatherTweets(self):
 		print( 'Fetching, localizing and analyzing Twitter stream data ( could take a while due to the few geotagged tweets ) ...' )
@@ -154,5 +121,4 @@ class TweetWeather(threading.Thread):
 				break
 
 	def stop(self):
-		self.clean_tmp_files()
 		self.Terminated = True
