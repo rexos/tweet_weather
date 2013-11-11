@@ -16,7 +16,7 @@ class Parser():
         """
         tokens = nltk.word_tokenize( text )
         tagged = nltk.pos_tag(tokens)
-        parsed = [ word for (word, tag) in tagged if tag in ['JJ', 'NN', 'VB', 'NNS', 'JJR', 'JJS', 'PRP', 'RBR', 'RBS'] ]
+        parsed = [ word for (word, tag) in tagged if tag in self.tags ]
         return parsed
 
 class Analyzer():
