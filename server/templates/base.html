@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Hello from Flask</title>
+    <meta charset="utf-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap-responsive.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -11,6 +11,8 @@
     <script type=text/javascript>
       $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
+    {% block extrahead %}
+    {% endblock %}
   </head>
   <body>
     <div class="wrapper" style="margin: 0 auto">

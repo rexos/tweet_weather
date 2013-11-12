@@ -39,7 +39,12 @@ def list_data():
 
 @app.route('/map')
 def map():
-    return render_template('map.html')
+    data = []
+    if os.path.exists('data.sqlite'):
+        cur = db.connect('data.sqlite').cursor()
+        cur.execute('SELECT latitude,longitude,value FROM tweets ORDER BY id DESC')
+        data = cur.fetchall()
+    return render_template('map.html', data=data)
 
 @app.route('/socket.io/<path:remaining>')
 def socketio(remaining):
@@ -54,7 +59,7 @@ def check_conn():
     try:
         res = urllib.urlopen( 'http://google.com' )
         return True
-    except: 
+    except:
         pass
     return False
 
@@ -65,6 +70,7 @@ def start():
         return jsonify('true')
     else:
         twThread.connexion_lost("Absent Internet Access")
+        return jsonify('false')
 
 @app.route('/stop')
 def stop():

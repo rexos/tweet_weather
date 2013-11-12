@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+
+{% block extrahead %}
+<title>Tweet Weather Homepage</title>
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
   <h1>Weather Tweet Stream</h1>
@@ -7,6 +12,9 @@
   <h2>I'm in a well</h2>
   <a href="/list_data">
     <button class="btn btn-primary btn-large"><i class="icon-list icon-white"></i>&nbsp;List</button>
+  </a>
+  <a href="/map">
+    <button class="btn btn-primary btn-large"><i class="icon-list icon-white"></i>&nbsp;Map</button>
   </a>
 </div>
 {% endblock %}
