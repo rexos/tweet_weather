@@ -35,8 +35,7 @@ class TweetWeather(threading.Thread):
         pkt = dict(type="event", name="connexion_lost", args=args, endpoint="/new_posts")
         for sessid, socket in self.server.sockets.iteritems():
             socket.send_packet(pkt)
-        self.stop()
-
+            
     def run(self):
         self.init_twitter_api()
         self.init_database()
@@ -116,19 +115,19 @@ class TweetWeather(threading.Thread):
             try:
                 tweets = next(tweetPages)
             except tweepy.error.TweepError as e:
+                print('in except\n')
                 if e.message[0]['code'] == 88: # Rate Limit Exceeded
                     print "Rate Limit Exceeded. Waiting for 15 minutes."
                     time.sleep(60*15)
                 tweets = next(tweetPages)
-
+                    
             filteredTweets = [tweet for tweet in tweets if tweet.coordinates]
             if not filteredTweets: # No tweet with coordinates on that page
                 continue
             page_count += 1
             for filteredTweet in filteredTweets:
                 self.parse_text(filteredTweet)
-
-            if page_count >= 200 or self.Terminated:
+            if self.Terminated:
                 break
 
     def stop(self):

@@ -60,7 +60,7 @@ def check_conn():
         res = urllib.urlopen( 'http://google.com' )
         return True
     except:
-        return False
+        pass
     return False
 
 @app.route('/start')
