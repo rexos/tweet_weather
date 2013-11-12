@@ -4,7 +4,7 @@ $(document).ready(function(){
 		    $.ajax({
 			    url : '/start',
 				type : 'GET',
-				async : false,
+				async: true
 				});
 		    $('#stop').toggleClass('disabled');
 			$('#start').toggleClass('disabled');
@@ -16,7 +16,7 @@ $(document).ready(function(){
 		    $.ajax({
 			    url : '/stop',
 				type : 'GET',
-				async : false,
+				async: true
 				});
 		    $('#start').toggleClass('disabled');
 		    $('#stop').toggleClass('disabled');
