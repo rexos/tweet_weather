@@ -5,14 +5,14 @@ import nltk
 
 
 class Parser():
-    def __init_(self):
+    def __init__(self):
         self.tags = ['JJ', 'NN', 'VB', 'NNS', 'JJR', 'JJS', 'PRP', 'RBR', 'RBS']
 
     def parse(self, text):
-        """                                                                                                                                                                                        
-        Extracts the most meaningful words from the                                                                                                                                                
-        tweets body text and returns a list composed                                                                                                                                               
-        by them.                                                                                                                                                                                   
+        """
+        Extracts the most meaningful words from the
+        tweets body text and returns a list composed
+        by them.
         """
         tokens = nltk.word_tokenize( text )
         tagged = nltk.pos_tag(tokens)
@@ -47,4 +47,4 @@ class Analyzer():
         tw_sad = [self.S.get(word,0) for word in tweet]
         happy_prob = np.reciprocal( np.exp( np.sum(tw_sad) - np.sum(tw_happy) ) + 1 )
         return happy_prob
- 
+

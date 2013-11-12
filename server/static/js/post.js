@@ -11,5 +11,11 @@ $(function() {
     	$("#header-line").last().after("<tr><td>"+id+"</td><td>"+score+"</td><td>"+weather+"</td><td>"+description+"</td></tr>");
     });
 
+    socket.on('connexion_lost', function(message) {
+    	alert(message);
+    	$('#start').toggleClass('disabled');
+		$('#stop').toggleClass('disabled');
+    });
+
 
 });

@@ -7,7 +7,7 @@ $(document).ready(function(){
 				async : false,
 				});
 		    $('#stop').toggleClass('disabled');
-		    $('#start').toggleClass('disabled');
+			$('#start').toggleClass('disabled');
 		}
 	    });
 
@@ -21,5 +21,5 @@ $(document).ready(function(){
 		    $('#start').toggleClass('disabled');
 		    $('#stop').toggleClass('disabled');
 		}
-	    }); 
+	    });
 });
