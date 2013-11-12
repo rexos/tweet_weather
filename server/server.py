@@ -50,10 +50,21 @@ def socketio(remaining):
                          exc_info=True)
     return Response()
 
+def check_conn():
+    try:
+        res = urllib.urlopen( 'http://google.com' )
+        return True
+    except: 
+        return False
+    return False
+
 @app.route('/start')
 def start():
-    twThread.start()
-    return jsonify('true')
+    if check_conn():
+        twThread.start()
+        return jsonify('true')
+    else:
+        twThread.connexion_lost("Absent Internet Access")
 
 @app.route('/stop')
 def stop():

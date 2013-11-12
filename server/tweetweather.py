@@ -19,10 +19,6 @@ class TweetWeather(threading.Thread):
         """
         Checks if there is a working Internet access
         """
-        try:
-            res = urllib.urlopen( 'http://google.com' )
-        except:
-            self.connexion_lost("Absent Internet Access")
         threading.Thread.__init__(self)
         self.name = name
         self.server = server
