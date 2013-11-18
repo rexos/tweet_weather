@@ -42,6 +42,7 @@ class Analyzer():
         tweet = self.parser.parse(tweet)
         tw_values = [self.list.get(word,0) for word in tweet]
         values = [ int(x) for x in tw_values if x != 0 ]
+        print( values )
         length = ( len(values) if len(values) else 1 )
         mean = ( sum( tw_values ) ) / float( length )
         weigth = ( mean + 5 ) / 10.
