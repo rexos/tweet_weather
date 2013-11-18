@@ -1,5 +1,5 @@
 import sys
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, make_response
 from socketio.server import SocketIOServer
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
@@ -12,7 +12,11 @@ import nltk
 import os
 from analysis import Analyzer
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import numpy as np
+from cStringIO import StringIO
 import simplejson as jsn
 import urllib
 from tweetweather import TweetWeather
@@ -33,18 +37,13 @@ def list_data():
     data = []
     if os.path.exists('data.sqlite'):
         cur = db.connect('data.sqlite').cursor()
-        cur.execute('SELECT id,value,weather,infos FROM tweets ORDER BY id DESC')
+        cur.execute('SELECT id,sentimentValue,weather,infos FROM tweets ORDER BY id DESC')
         data = cur.fetchall()
     return render_template('list.html', data=data)
 
 @app.route('/map')
 def map():
-    data = []
-    if os.path.exists('data.sqlite'):
-        cur = db.connect('data.sqlite').cursor()
-        cur.execute('SELECT latitude,longitude,value FROM tweets ORDER BY id DESC')
-        data = cur.fetchall()
-    return render_template('map.html', data=data)
+    return render_template('map.html')
 
 @app.route('/socket.io/<path:remaining>')
 def socketio(remaining):
@@ -76,6 +75,31 @@ def start():
 def stop():
     twThread.stop()
     return jsonify('true')
+
+@app.route("/plot")
+def plot():
+    if os.path.exists('data.sqlite'):
+        cur = db.connect('data.sqlite').cursor()
+        cur.execute('SELECT sentimentValue, weatherValue FROM tweets ORDER BY id DESC')
+        data = cur.fetchall()
+
+    x = [point[0] for point in data]
+    y = [point[1] for point in data]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    xs = np.linspace(0, 1, 1000)
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+    ax.plot(xs, xs, label='Perfect Correlation', color='green')
+    ax.scatter(x,y, label='Data Points', color='red')
+    ax.legend()
+
+    io = StringIO()
+    fig.savefig(io, format='png')
+    data = io.getvalue().encode('base64')
+
+    return render_template('plot.html', data=data)
 
 if __name__ == '__main__':
     analyzer = Analyzer()

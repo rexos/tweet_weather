@@ -55,7 +55,6 @@ class TweetWeather(threading.Thread):
         # obtaining twitter app authorization
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_key, access_secret)
-        self.gathered = []
         self.api = tweepy.API(auth)
 
     def init_database(self):
@@ -72,6 +71,7 @@ class TweetWeather(threading.Thread):
             cursor.execute("CREATE TABLE tweets(" + \
                                "id integer PRIMARY KEY AUTOINCREMENT," + \
                                "sentimentValue real NOT NULL," + \
+                               "weatherValue real NOT NULL," + \
                                "correlationScore real NOT NULL," + \
                                "weather VARCHAR(255) NOT NULL," + \
                                        "latitude REAL NOT NULL," + \
@@ -108,12 +108,11 @@ class TweetWeather(threading.Thread):
                 main = weather['weather'][0]
                 print( main['main'], status.text, score )
 
-                correlationScore = 1
+                correlationScore = abs(score-weatherDict[main['icon']])
 
-                self.gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
-                cursor.execute("INSERT INTO tweets(sentimentValue, correlationScore, weather,latitude,longitude,infos) VALUES(?, ?, ?, ?, ?, ?)",
-                           [score, correlationScore, main['main'], status.coordinates['coordinates'][0], status.coordinates['coordinates'][1], main['description']])
-                self.new_post(score, main['main'], main['description'], status.coordinates['coordinates'][0], status.coordinates['coordinates'][1], correlationScore)
+                cursor.execute("INSERT INTO tweets(sentimentValue, weatherValue, correlationScore, weather,latitude,longitude,infos) VALUES(?, ?, ?, ?, ?, ?, ?)",
+                           [score, weatherDict[main['icon']], correlationScore, main['main'], status.coordinates['coordinates'][1], status.coordinates['coordinates'][0], main['description']])
+                self.new_post(score, main['main'], main['description'], status.coordinates['coordinates'][1], status.coordinates['coordinates'][0], correlationScore)
                 conn.commit()
         conn.close()
 

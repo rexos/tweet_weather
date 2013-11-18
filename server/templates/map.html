@@ -2,10 +2,11 @@
 
 {% block extrahead %}
 <title>Tweet Weather: Heatmap</title>
-<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=visualization"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=visualization,weather"></script>
+
 <script>
 
-var map, pointarray, heatmap;
+var map, pointArray, heatmap;
 
 var data = [];
 
@@ -19,18 +20,21 @@ function initialize() {
   map = new google.maps.Map(document.getElementById('map-canvas'),
       mapOptions);
 
-  var pointArray = new google.maps.MVCArray(data);
+  pointArray = new google.maps.MVCArray(data);
 
   heatmap = new google.maps.visualization.HeatmapLayer({
-    data: pointArray
+    data: pointArray,
+    map : map
   });
 
   heatmap.setMap(map);
 
   var weatherLayer = new google.maps.weather.WeatherLayer({
-    temperatureUnits: google.maps.weather.TemperatureUnit.CELCIUS
+    temperatureUnits: google.maps.weather.TemperatureUnit.FAHRENHEIT,
+    map : map
   });
   weatherLayer.setMap(map);
+
 }
 
 function toggleHeatmap() {
