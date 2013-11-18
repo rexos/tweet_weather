@@ -71,8 +71,8 @@ class TweetWeather(threading.Thread):
             cursor = conn.cursor()
             cursor.execute("CREATE TABLE tweets(" + \
                                "id integer PRIMARY KEY AUTOINCREMENT," + \
-                               "sentimentValue integer NOT NULL," + \
-                               "correlationScore integer NOT NULL," + \
+                               "sentimentValue real NOT NULL," + \
+                               "correlationScore real NOT NULL," + \
                                "weather VARCHAR(255) NOT NULL," + \
                                        "latitude REAL NOT NULL," + \
                                        "longitude REAL NOT NULL," + \
@@ -108,7 +108,7 @@ class TweetWeather(threading.Thread):
                 main = weather['weather'][0]
                 print( main['main'], status.text, score )
 
-                correlationScore = abs(score-weatherDict[main['icon']])
+                correlationScore = 1
 
                 self.gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
                 cursor.execute("INSERT INTO tweets(sentimentValue, correlationScore, weather,latitude,longitude,infos) VALUES(?, ?, ?, ?, ?, ?)",
