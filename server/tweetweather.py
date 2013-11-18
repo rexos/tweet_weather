@@ -12,6 +12,15 @@ access_key = "1889545957-BFTycJVNsAgtlfdKbalV1rwTJqoGGhj0iTxIo6k"
 access_secret = "NmfEez4FykN1iGZYUfjYzUvUIksNne2xi6Ovo9Wq00"
 weather_appid = "&APPID=4e04cba42b432a01c4226e186f3d23d2"
 
+'''
+    Dictionary used to map a weather icon to a weather "score" from 0 (worse) to 8 (best).
+    Night weathers are never assumed better than the "Broken Clouds" score of day weathers.
+    The dictionary is normalized to fit in the [0,1] range
+    TO DO : Snow is being ranked the worst, which is probably not correct as snow often triggers positive reactions. Should it be moved ?
+'''
+weatherDict = { '13d' : 0, '11d' : 1, '09d' : 2, '10d' : 3, '50d' : 4, '04d' : 5, '03d' : 6, '02d' : 7, '01d' : 8, '13n' : 0, '11n' : 1, '09n' : 2, '10n' : 3, '50n' : 4, '04n' : 5, '03n' : 5, '02n' : 5, '01n' : 5}
+weatherDict = { k:float(v)/8 for (k,v) in weatherDict.iteritems() }
+
 class TweetWeather(threading.Thread):
 
     def __init__(self, server, analyzer, name = ''):
@@ -35,7 +44,7 @@ class TweetWeather(threading.Thread):
         pkt = dict(type="event", name="connexion_lost", args=args, endpoint="/new_posts")
         for sessid, socket in self.server.sockets.iteritems():
             socket.send_packet(pkt)
-            
+
     def run(self):
         self.init_twitter_api()
         self.init_database()
@@ -62,7 +71,8 @@ class TweetWeather(threading.Thread):
             cursor = conn.cursor()
             cursor.execute("CREATE TABLE tweets(" + \
                                "id integer PRIMARY KEY AUTOINCREMENT," + \
-                               "value integer NOT NULL," + \
+                               "sentimentValue integer NOT NULL," + \
+                               "correlationScore integer NOT NULL," + \
                                "weather VARCHAR(255) NOT NULL," + \
                                        "latitude REAL NOT NULL," + \
                                        "longitude REAL NOT NULL," + \
@@ -98,10 +108,12 @@ class TweetWeather(threading.Thread):
                 main = weather['weather'][0]
                 print( main['main'], status.text, score )
 
+                correlationScore = abs(score-weatherDict[main['icon']])
+
                 self.gathered.append( tuple((score, status.coordinates['coordinates'], main['main'])) )
-                cursor.execute("INSERT INTO tweets(value,weather,latitude,longitude,infos) VALUES(?, ?, ?, ?, ?)",
-                           [score, main['main'], status.coordinates['coordinates'][0], status.coordinates['coordinates'][1], main['description']])
-                self.new_post(score, main['main'], main['description'])
+                cursor.execute("INSERT INTO tweets(sentimentValue, correlationScore, weather,latitude,longitude,infos) VALUES(?, ?, ?, ?, ?, ?)",
+                           [score, correlationScore, main['main'], status.coordinates['coordinates'][0], status.coordinates['coordinates'][1], main['description']])
+                self.new_post(score, main['main'], main['description'], status.coordinates['coordinates'][0], status.coordinates['coordinates'][1], correlationScore)
                 conn.commit()
         conn.close()
 
@@ -120,7 +132,7 @@ class TweetWeather(threading.Thread):
                     print "Rate Limit Exceeded. Waiting for 15 minutes."
                     time.sleep(60*15)
                 tweets = next(tweetPages)
-                    
+
             filteredTweets = [tweet for tweet in tweets if tweet.coordinates]
             if not filteredTweets: # No tweet with coordinates on that page
                 continue

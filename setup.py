@@ -8,7 +8,7 @@ setup(
     name = "WeatherTweet",
     version = "0.1",
     packages = find_packages(),
-    scripts = ['server/server.py','server/tweetweather.py','server/analysis.py'],
+    scripts = ['server/server.py','server/tweetweather.py','server/analysis.py', 'server/weight.py'],
 
     # Project uses reStructuredText, so ensure that the docutils get
     # installed or upgraded on the target machine
