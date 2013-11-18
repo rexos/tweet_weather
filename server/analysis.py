@@ -1,4 +1,6 @@
 import numpy as np
+import scipy.stats
+import math
 import urllib
 import os
 import nltk
@@ -29,7 +31,7 @@ class Analyzer():
         self.url = "https://dl.dropbox.com/u/3773091/Twitter%20Sentiment/Twitter%20sentiment%20analysis.zip"
         urllib.urlretrieve( self.afinn_url, 'word_list.zip' )
         zip = zipfile.ZipFile('word_list.zip')
-        self.list = dict(map(lambda (k,v): ( unicode(k, 'utf-8'), int(v) ), 
+        self.list = dict(map(lambda (k,v): ( unicode(k, 'utf-8'), int(v)+5 ), 
                  [ line.split('\t') for line in open(zip.extract('AFINN/AFINN-111.txt')) ]))
         
         # clean temporary files on the fly
@@ -37,14 +39,25 @@ class Analyzer():
         os.remove('AFINN/AFINN-111.txt')
         os.rmdir('AFINN')
 
-    def analyze(self, tweet):
-    #evaluates the log probability of tweet happiness ( sadness = 1 - happiness )
-        tweet = self.parser.parse(tweet)
-        tw_values = [self.list.get(word,0) for word in tweet]
-        values = [ int(x) for x in tw_values if x != 0 ]
-        print( values )
-        length = ( len(values) if len(values) else 1 )
-        mean = ( sum( tw_values ) ) / float( length )
-        weigth = ( mean + 5 ) / 10.
-        return weigth
+    def espone( self, x, mean, deviation ):
+        return math.exp( -( pow( (x - mean ), 2 )) / (2*pow( deviation, 2 )) )
 
+    def analyze(self, tweet):
+        values = np.array(self.list.values())
+        data = [ self.list.get( word, 0 ) for word in tweet.split(" ") ]
+        data = [ int(x) for x in data if x != 0 ]
+        mean_data = np.mean( data )
+        mean = np.mean( values )
+        deviation = math.sqrt( sum( [ pow(x - mean, 2) for x in values ] ) / float( len(values) ))
+        total = 0
+        
+        for d in data:
+            total = total+( d * self.espone(d,mean,deviation) )
+        
+        if sum(data):
+            total = total / float(sum(data))
+        
+        if mean_data > mean:
+            return 1 - total
+        else:
+            return total
