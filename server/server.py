@@ -1,23 +1,22 @@
+"""
+server.py is a python module which implements a flask http
+server needed by the whole web application.
+"""
+
 import sys
-from flask import Flask, render_template, jsonify, make_response
+from flask import Flask, render_template, jsonify
 from socketio.server import SocketIOServer
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
-from socketio.mixins import RoomsMixin, BroadcastMixin
 from pysqlite2 import dbapi2 as db
 import gevent
-import threading
-from numpy import arange
-import nltk
 import os
 from analysis import Analyzer
-import time
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from cStringIO import StringIO
-import simplejson as jsn
 import urllib
 from tweetweather import TweetWeather
 
@@ -55,8 +54,11 @@ def socketio(remaining):
     return Response()
 
 def check_conn():
+    """
+    Checks whether a working Internet connection exists
+    """
     try:
-        res = urllib.urlopen( 'http://google.com' )
+        urllib.urlopen( 'http://google.com' )
         return True
     except:
         pass
@@ -92,21 +94,20 @@ def plot():
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 1])
     ax.plot(xs, xs, label='Perfect Correlation', color='green')
-    ax.scatter(x,y, label='Data Points', color='red')
+    ax.scatter(x, y, label='Data Points', color='red')
     ax.legend()
 
     io = StringIO()
     fig.savefig(io, format='png')
     data = io.getvalue().encode('base64')
-
     return render_template('plot.html', data=data)
 
 if __name__ == '__main__':
     analyzer = Analyzer()
     server = SocketIOServer(('', PORT), app, resource="socket.io")
     twThread = TweetWeather(server, analyzer, name = "Tweet-Weather-Thread")
-    gevent.spawn(twThread.new_post,server)
-    gevent.spawn(twThread.connexion_lost,server)
+    gevent.spawn(twThread.new_post, server)
+    gevent.spawn(twThread.connexion_lost, server)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
