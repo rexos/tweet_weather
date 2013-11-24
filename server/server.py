@@ -82,7 +82,8 @@ def stop():
 def plot():
     if os.path.exists('data.sqlite'):
         cur = db.connect('data.sqlite').cursor()
-        cur.execute('SELECT sentimentValue, weatherValue FROM tweets ORDER BY id DESC')
+        cur.execute('SELECT sentimentValue, weatherValue FROM tweets'
+                    ' WHERE sentimentValue > 0 ORDER BY id DESC')
         data = cur.fetchall()
 
     x = [point[0] for point in data]

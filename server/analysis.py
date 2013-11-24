@@ -46,10 +46,8 @@ class Analyzer():
         import zipfile
         self.list = {}
         self.parser = Parser()
-        self.afinn_url = "http://www2.imm.dtu.dk/pubdb/"
-        "views/edoc_download.php/6010/zip/imm6010.zip"
-        self.url = "https://dl.dropbox.com/u/3773091/"
-        "Twitter%20Sentiment/Twitter%20sentiment%20analysis.zip"
+        self.afinn_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
+        self.url = "https://dl.dropbox.com/u/3773091/Twitter%20Sentiment/Twitter%20sentiment%20analysis.zip"
         urllib.urlretrieve( self.afinn_url, 'word_list.zip' )
         zip = zipfile.ZipFile('word_list.zip')
         self.list = dict(map(lambda (k, v): ( unicode(k, 'utf-8'), int(v)+5 ),
