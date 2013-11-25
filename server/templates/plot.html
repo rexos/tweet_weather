@@ -2,13 +2,36 @@
 
 {% block extrahead %}
 <title>Tweet Weather: Scatter Plot</title>
+<script type=text/javascript>
+  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
   <h1>Scatter Plot</h1>
 </div>
-<div class="well center">
+<div id="plot" class="well center">
   <img src="data:image/png;base64,{% print data %}" />
 </div>
+<button class="btn btn-success btn-large" id="start">
+  <i class="icon-play icon-white"></i>&nbsp;Start
+</button>
+<button class="btn btn-danger btn-large disabled" id="stop">
+  <i class="icon-remove icon-white"></i>&nbsp;Stop
+</button>
+<button class="btn btn-warning btn-large" id="refresh">
+  <i class="icon-refresh icon-white"></i>&nbsp;Refresh
+</button>
+<script>
+$(function() {
+    $('button#refresh').bind('click', function() {
+      $.get($SCRIPT_ROOT + '/plot', { refresh: 1 }, function(data) {
+        $('#plot').html('<img src="data:image/png;base64,' + data + '" />')
+      });
+      return false;
+    });
+  });
+</script>
+<script src="/static/js/start-stop.js"></script>
 {% endblock %}

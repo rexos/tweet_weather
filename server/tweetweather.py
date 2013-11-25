@@ -99,7 +99,6 @@ class TweetWeather(threading.Thread):
         score = self.analyzer.analyze(status.text)
         weather_url = self.root_weather_url % tuple(
             [str(x) for x in status.coordinates['coordinates']])
-        print weather_url
         response = urllib.urlopen(weather_url)
         try:
             weather = jsn.load(response)

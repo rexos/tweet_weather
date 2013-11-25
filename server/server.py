@@ -4,7 +4,7 @@ server needed by the whole web application.
 """
 
 import sys
-from flask import Flask, render_template, jsonify, Response
+from flask import Flask, render_template, jsonify, Response, request
 from socketio.server import SocketIOServer
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
@@ -138,6 +138,9 @@ def plot():
     str_io = StringIO()
     fig.savefig(str_io, format='png')
     data = str_io.getvalue().encode('base64')
+    refresh = request.args.get('refresh', 0, type=int)
+    if refresh:
+        return data
     return render_template('plot.html', data=data)
 
 
