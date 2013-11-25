@@ -34,7 +34,7 @@ class Analyzer(object):
             for line in comp_file:
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(float(data[1].strip()))
-        print(len(self.comp_list))
+        print( self.comp_list[":)"] )
         # clean temporary files on the fly
         os.remove('word_list.zip')
         os.remove('AFINN/AFINN-111.txt')
@@ -47,7 +47,8 @@ class Analyzer(object):
         to compute the weight of each word
         """
         values = np.array(self.comp_list.values())
-        data = self.parse(tweet)
+        data = self.parse(tweet.lower())
+        data = [ self.comp_list.get(word, 0) for word in data ]
         data = [int(x) for x in data if x != 0]
         mean_data = np.mean(data)
         mean = np.mean(values)
