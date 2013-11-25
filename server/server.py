@@ -4,7 +4,7 @@ server needed by the whole web application.
 """
 
 import sys
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, Response
 from socketio.server import SocketIOServer
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
@@ -17,11 +17,11 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from cStringIO import StringIO
-import urllib
+import urllib2
 from tweetweather import TweetWeather
 
-path = os.path.join('.', os.path.dirname(__file__), '../')
-sys.path.append(path)
+PATH = os.path.join('.', os.path.dirname(__file__), '../')
+sys.path.append(PATH)
 
 PORT = 5000
 
@@ -30,11 +30,21 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
+    """
+    The home page is a static page
+    allowing the choice of the visualization tool
+    """
     return render_template('hello.html')
 
 
 @app.route('/list_data')
 def list_data():
+    """
+    This page displays all objects in a table
+    updated as they are mined.
+    The user can start and stop the data mining
+    using buttons.
+    """
     data = []
     if os.path.exists('data.sqlite'):
         cur = db.connect('data.sqlite').cursor()
@@ -44,12 +54,23 @@ def list_data():
 
 
 @app.route('/map')
-def map():
+def display_map():
+    """
+    This page displays a map centered around the United States
+    containing a weather layer and a heatmap with arriving objects.
+    The user can start and stop the data mining
+    using buttons.
+    """
     return render_template('map.html')
 
 
 @app.route('/socket.io/<path:remaining>')
-def socketio(remaining):
+def socketio(request):
+    """
+    This route configures the WebSocket
+    used to let the client know that new objects
+    were mined
+    """
     try:
         socketio_manage(request.environ,
                         {'/new_posts': BaseNamespace},
@@ -62,18 +83,21 @@ def socketio(remaining):
 
 def check_conn():
     """
-    Checks whether a working Internet connection exists
+    Checks whether a working Internet connection is available
     """
     try:
-        urllib.urlopen('http://google.com')
+        urllib2.urlopen('http://74.125.228.100')  # Google IP (no DNS lookup)
         return True
-    except:
+    except urllib2.URLError:
         pass
     return False
 
 
 @app.route('/start')
 def start():
+    """
+    Starts the data mining thread if an internet connection is available
+    """
     if check_conn():
         twThread.start()
         return jsonify('true')
@@ -84,6 +108,9 @@ def start():
 
 @app.route('/stop')
 def stop():
+    """
+    Stops the data mining thread
+    """
     twThread.stop()
     return jsonify('true')
 
@@ -100,17 +127,17 @@ def plot():
     y = [point[1] for point in data]
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    axis = fig.add_subplot(1, 1, 1)
     xs = np.linspace(0, 1, 1000)
-    ax.set_xlim([0, 1])
-    ax.set_ylim([0, 1])
-    ax.plot(xs, xs, label='Perfect Correlation', color='green')
-    ax.scatter(x, y, label='Data Points', color='red')
-    ax.legend()
+    axis.set_xlim([0, 1])
+    axis.set_ylim([0, 1])
+    axis.plot(xs, xs, label='Perfect Correlation', color='green')
+    axis.scatter(x, y, label='Data Points', color='red')
+    axis.legend()
 
-    io = StringIO()
-    fig.savefig(io, format='png')
-    data = io.getvalue().encode('base64')
+    str_io = StringIO()
+    fig.savefig(str_io, format='png')
+    data = str_io.getvalue().encode('base64')
     return render_template('plot.html', data=data)
 
 

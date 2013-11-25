@@ -10,7 +10,7 @@ import os
 import nltk
 
 
-class Parser():
+class Parser(object):
     """
     The Parser class is used to parse the body of a tweet
     extract the most meaningful words from it and return
@@ -35,7 +35,7 @@ class Parser():
         return parsed
 
 
-class Analyzer():
+class Analyzer(object):
     """
     Analyzer is used to give a real value to the sentiment found
     in a tweet text.
@@ -46,30 +46,23 @@ class Analyzer():
         management hard coded.
         """
         import zipfile
-        self.list = {}
+        self.comp_list = {}
         self.parser = Parser()
         self.afinn_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
         self.url = "https://dl.dropbox.com/u/3773091/Twitter%20Sentiment/Twitter%20sentiment%20analysis.zip"
         urllib.urlretrieve(self.afinn_url, 'word_list.zip')
-        zip = zipfile.ZipFile('word_list.zip')
-        self.list = dict(map(lambda (k, v): (unicode(k, 'utf-8'), int(v)+5),
-                             [line.split('\t') for line in open(zip.extract('AFINN/AFINN-111.txt'))]))
-        with open('my_list.txt', 'r') as file:
-            for line in file:
+        world_list_zip = zipfile.ZipFile('word_list.zip')
+        self.comp_list = {unicode(k, 'utf-8'): int(v)+5
+                          for (k, v) in [line.split('\t') for line in open(world_list_zip.extract('AFINN/AFINN-111.txt'))]}
+        with open('my_list.txt', 'r') as comp_file:
+            for line in comp_file:
                 data = line.split('\t')
-                self.list[data[0]] = int(float(data[1].strip()))
-        print(len(self.list))
+                self.comp_list[data[0]] = int(float(data[1].strip()))
+        print(len(self.comp_list))
         # clean temporary files on the fly
         os.remove('word_list.zip')
         os.remove('AFINN/AFINN-111.txt')
         os.rmdir('AFINN')
-
-    def espone(self, x, mean, deviation):
-        """
-        The "Likelihood" function using a gaussian probability
-        function.
-        """
-        return math.exp(-(pow((x - mean), 2)) / (2*pow(deviation, 2)))
 
     def analyze(self, tweet):
         """
@@ -77,8 +70,8 @@ class Analyzer():
         AFINN word-value list and using a gaussian distribution
         to compute the weight of each word
         """
-        values = np.array(self.list.values())
-        data = [self.list.get(word, 0) for word in tweet.split(" ")]
+        values = np.array(self.comp_list.values())
+        data = [self.comp_list.get(word, 0) for word in tweet.split(" ")]
         data = [int(x) for x in data if x != 0]
         mean_data = np.mean(data)
         mean = np.mean(values)
@@ -86,8 +79,8 @@ class Analyzer():
                               / float(len(values)))
         total = 0
 
-        for d in data:
-            total = total + (d * self.espone(d, mean, deviation))
+        for value in data:
+            total = total + (value * espone(value, mean, deviation))
 
         if sum(data):
             total = total / float(sum(data))
@@ -96,3 +89,11 @@ class Analyzer():
             return 1 - total
         else:
             return total
+
+
+def espone(value, mean, deviation):
+    """
+    The "Likelihood" function using a gaussian probability
+    function.
+    """
+    return math.exp(-(pow((value - mean), 2)) / (2*pow(deviation, 2)))
