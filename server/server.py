@@ -27,9 +27,11 @@ PORT = 5000
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def home():
     return render_template('hello.html')
+
 
 @app.route('/list_data')
 def list_data():
@@ -40,29 +42,35 @@ def list_data():
         data = cur.fetchall()
     return render_template('list.html', data=data)
 
+
 @app.route('/map')
 def map():
     return render_template('map.html')
 
+
 @app.route('/socket.io/<path:remaining>')
 def socketio(remaining):
     try:
-        socketio_manage(request.environ, {'/new_posts': BaseNamespace}, request)
+        socketio_manage(request.environ,
+                        {'/new_posts': BaseNamespace},
+                        request)
     except:
         app.logger.error("Exception while handling socketio connection",
                          exc_info=True)
     return Response()
+
 
 def check_conn():
     """
     Checks whether a working Internet connection exists
     """
     try:
-        urllib.urlopen( 'http://google.com' )
+        urllib.urlopen('http://google.com')
         return True
     except:
         pass
     return False
+
 
 @app.route('/start')
 def start():
@@ -73,10 +81,12 @@ def start():
         twThread.connexion_lost("Absent Internet Access")
         return jsonify('false')
 
+
 @app.route('/stop')
 def stop():
     twThread.stop()
     return jsonify('true')
+
 
 @app.route("/plot")
 def plot():
@@ -103,10 +113,11 @@ def plot():
     data = io.getvalue().encode('base64')
     return render_template('plot.html', data=data)
 
+
 if __name__ == '__main__':
     analyzer = Analyzer()
     server = SocketIOServer(('', PORT), app, resource="socket.io")
-    twThread = TweetWeather(server, analyzer, name = "Tweet-Weather-Thread")
+    twThread = TweetWeather(server, analyzer, name="Tweet-Weather-Thread")
     gevent.spawn(twThread.new_post, server)
     gevent.spawn(twThread.connexion_lost, server)
     try:
