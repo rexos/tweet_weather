@@ -37,7 +37,7 @@ class Analyzer(object):
         with open('emoticons.csv') as file: # reads emoticons file
             for line in file:
                 data = line.split('\t')
-                self.comp_list[data[0]] = int(data[1].strip())
+                self.comp_list[data[0]] = int(data[1].strip()) + 5
         print( self.comp_list[":)"] )
         # clean temporary files on the fly
         self.values = np.array(self.comp_list.values())
