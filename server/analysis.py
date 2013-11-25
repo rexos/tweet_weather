@@ -10,31 +10,6 @@ import os
 import nltk
 
 
-class Parser(object):
-    """
-    The Parser class is used to parse the body of a tweet
-    extract the most meaningful words from it and return
-    a list of them
-    """
-    def __init__(self):
-        """
-        Parser constructor which initializes a set of tags
-        needed for the bag of words extraction
-        """
-        self.tags = ['JJ', 'NN', 'VB', 'NNS', 'JJR', 'JJS', 'PRP', 'RBR', 'RBS']
-
-    def parse(self, text):
-        """
-        Extracts the most meaningful words (bag of words) from the
-        tweets body text and returns a list composed
-        by them. Uses the nltk module to achieve this.
-        """
-        tokens = nltk.word_tokenize(text)
-        tagged = nltk.pos_tag(tokens)
-        parsed = [word for (word, tag) in tagged if tag in self.tags]
-        return parsed
-
-
 class Analyzer(object):
     """
     Analyzer is used to give a real value to the sentiment found
@@ -46,14 +21,15 @@ class Analyzer(object):
         management hard coded.
         """
         import zipfile
+        # set of tags needed for the bag of words extraction
+        self.tags = ['JJ', 'NN', 'VB', 'NNS', 'JJR', 'JJS', 'PRP', 'RBR', 'RBS']
         self.comp_list = {}
-        self.parser = Parser()
         self.afinn_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
         self.url = "https://dl.dropbox.com/u/3773091/Twitter%20Sentiment/Twitter%20sentiment%20analysis.zip"
         urllib.urlretrieve(self.afinn_url, 'word_list.zip')
-        world_list_zip = zipfile.ZipFile('word_list.zip')
+        word_list_zip = zipfile.ZipFile('word_list.zip')
         self.comp_list = {unicode(k, 'utf-8'): int(v)+5
-                          for (k, v) in [line.split('\t') for line in open(world_list_zip.extract('AFINN/AFINN-111.txt'))]}
+                          for (k, v) in [line.split('\t') for line in open(word_list_zip.extract('AFINN/AFINN-111.txt'))]}
         with open('my_list.txt', 'r') as comp_file:
             for line in comp_file:
                 data = line.split('\t')
@@ -71,7 +47,7 @@ class Analyzer(object):
         to compute the weight of each word
         """
         values = np.array(self.comp_list.values())
-        data = [self.comp_list.get(word, 0) for word in tweet.split(" ")]
+        data = self.parse(tweet)
         data = [int(x) for x in data if x != 0]
         mean_data = np.mean(data)
         mean = np.mean(values)
@@ -89,6 +65,17 @@ class Analyzer(object):
             return 1 - total
         else:
             return total
+
+    def parse(self, tweet):
+        """
+        Extracts the most meaningful words (bag of words) from the
+        tweets body text and returns a list composed
+        by them. Uses the nltk module to achieve this.
+        """
+        tokens = nltk.word_tokenize(tweet)
+        tagged = nltk.pos_tag(tokens)
+        parsed = [word for (word, tag) in tagged if tag in self.tags]
+        return parsed
 
 
 def espone(value, mean, deviation):
