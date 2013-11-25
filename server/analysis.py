@@ -52,7 +52,11 @@ class Analyzer():
         zip = zipfile.ZipFile('word_list.zip')
         self.list = dict(map(lambda (k, v): ( unicode(k, 'utf-8'), int(v)+5 ),
                  [ line.split('\t') for line in open(zip.extract('AFINN/AFINN-111.txt')) ]))
-
+        with open('my_list.txt', 'r') as file:
+            for line in file:
+                data = line.split('\t')
+                self.list[data[0]] = int(float(data[1].strip()))
+        print( len(self.list) )
         # clean temporary files on the fly
         os.remove('word_list.zip')
         os.remove('AFINN/AFINN-111.txt')
