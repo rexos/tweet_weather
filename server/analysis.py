@@ -8,7 +8,7 @@ import math
 import urllib
 import os
 import nltk
-
+import re
 
 class Analyzer(object):
     """
@@ -22,21 +22,30 @@ class Analyzer(object):
         """
         import zipfile
         # set of tags needed for the bag of words extraction
-        self.tags = ['JJ', 'NN', 'VB', 'NNS', 'JJR', 'JJS', 'PRP', 'RBR', 'RBS']
+        self.tags = ['JJ', 'NN', 'VB', 'NNS', 'JJR', 'JJS', 'PRP', 'RBR', 'RBS', '<3']
         self.comp_list = {}
         self.afinn_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
         self.url = "https://dl.dropbox.com/u/3773091/Twitter%20Sentiment/Twitter%20sentiment%20analysis.zip"
         urllib.urlretrieve(self.afinn_url, 'word_list.zip')
         word_list_zip = zipfile.ZipFile('word_list.zip')
-        self.comp_list = {unicode(k, 'utf-8'): int(v)+5
+        self.comp_list = {unicode(k, 'utf-8'): int(v)+5 # reads AFINN list
                           for (k, v) in [line.split('\t') for line in open(word_list_zip.extract('AFINN/AFINN-111.txt'))]}
+
         script_dir = os.path.dirname(__file__)
-        with open(os.path.join(script_dir,'my_list.txt'), 'r') as comp_file:
+        with open(os.path.join(script_dir,'my_list.txt'), 'r') as comp_file:  # reads larger list
             for line in comp_file:
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(float(data[1].strip()))
-        print(len(self.comp_list))
+        with open('emoticons.csv') as file: # reads emoticons file
+            for line in file:
+                data = line.split('\t')
+                self.comp_list[data[0]] = int(data[1].strip()) + 5
+        print( self.comp_list[":)"] )
         # clean temporary files on the fly
+        self.values = np.array(self.comp_list.values())
+        self.mean = np.mean(self.values)
+        self.deviation = math.sqrt(sum([pow(x - self.mean, 2) for x in self.values])
+                                   / float(len(self.values)))
         os.remove('word_list.zip')
         os.remove('AFINN/AFINN-111.txt')
         os.rmdir('AFINN')
@@ -47,22 +56,23 @@ class Analyzer(object):
         AFINN word-value list and using a gaussian distribution
         to compute the weight of each word
         """
-        values = np.array(self.comp_list.values())
-        data = self.parse(tweet)
+        emoticons_groups =  re.findall("([0-9A-Za-z'\&\-\.\/\(\)=:;]+)|((?::|;|=)(?:-)?(?:\)|D|P))|(<3)", tweet)
+        emoticons = [ x[0] for x in emoticons_groups if x[0] != ''] # we have three groups in our regexp so we need to check everyone of them
+        emoticons.extend( [ x[1] for x in emoticons_groups if x[1] != ''] )
+        emoticons.extend( [ x[2] for x in emoticons_groups if x[2] != ''] )
+        data = [ self.comp_list.get(word, 0) for word in self.parse(tweet.lower()) ]
         data = [int(x) for x in data if x != 0]
+        data.extend( [ self.comp_list.get(e, 0) for e in emoticons ] )
         mean_data = np.mean(data)
-        mean = np.mean(values)
-        deviation = math.sqrt(sum([pow(x - mean, 2) for x in values])
-                              / float(len(values)))
         total = 0
 
         for value in data:
-            total = total + (value * espone(value, mean, deviation))
+            total = total + (value * espone(value, self.mean, self.deviation))
 
         if sum(data):
             total = total / float(sum(data))
 
-        if mean_data > mean:
+        if mean_data > self.mean:
             return 1 - total
         else:
             return total
