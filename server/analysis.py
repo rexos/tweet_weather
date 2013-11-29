@@ -36,11 +36,10 @@ class Analyzer(object):
             for line in comp_file:
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(float(data[1].strip()))
-        with open('emoticons.csv') as file: # reads emoticons file
+        with open(os.path.join(script_dir,'emoticons.csv'), 'r') as file: # reads emoticons file
             for line in file:
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(data[1].strip()) + 5
-        print( self.comp_list[":)"] )
         # clean temporary files on the fly
         self.values = np.array(self.comp_list.values())
         self.mean = np.mean(self.values)

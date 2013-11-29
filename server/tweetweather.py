@@ -145,11 +145,12 @@ class TweetWeather(threading.Thread):
             try:
                 tweets = next(tweet_pages)
             except tweepy.error.TweepError as exc:
-                print('in except\n')
                 if exc.message[0]['code'] == 88:  # Rate Limit Exceeded
                     print "Rate Limit Exceeded. Waiting for 15 minutes."
                     time.sleep(60*15)
                 tweets = next(tweet_pages)
+            except KeyboardInterrupt:
+                self.stop()
 
             filtered_tweets = [tweet for tweet in tweets if tweet.coordinates]
             if not filtered_tweets:  # No tweet with coordinates on that page

@@ -7,3 +7,4 @@ AFINN
 *.swp
 *.egg-info
 *.egg
+build/
