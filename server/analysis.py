@@ -30,7 +30,8 @@ class Analyzer(object):
         word_list_zip = zipfile.ZipFile('word_list.zip')
         self.comp_list = {unicode(k, 'utf-8'): int(v)+5
                           for (k, v) in [line.split('\t') for line in open(word_list_zip.extract('AFINN/AFINN-111.txt'))]}
-        with open('my_list.txt', 'r') as comp_file:
+        script_dir = os.path.dirname(__file__)
+        with open(os.path.join(script_dir,'my_list.txt'), 'r') as comp_file:
             for line in comp_file:
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(float(data[1].strip()))

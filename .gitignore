@@ -5,3 +5,5 @@ AFINN
 *.zip
 *.sqlite
 *.swp
+*.egg-info
+*.egg
