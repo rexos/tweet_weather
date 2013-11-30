@@ -37,7 +37,7 @@ class Analyzer(object):
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(float(data[1].strip())) - 5
 
-        with open('emoticons.csv') as file: # reads emoticons file
+        with open(os.path.join(script_dir,'emoticons.csv'), 'r') as file: # reads emoticons file
             for line in file:
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(data[1].strip())
@@ -80,7 +80,7 @@ class Analyzer(object):
                 vals = vals + abs(val)
             else:
                 pass
-            
+
         for value in data:
             if value > 0 :
                 martin['positive'] = martin['positive'] + (value / espone(value, self.mean, self.deviation))
