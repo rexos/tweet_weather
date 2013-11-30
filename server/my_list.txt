@@ -43,7 +43,7 @@ jasmine	8.0
 china	5.0
 &&	5.0
 kids	8.0
-iloveyou	5.0
+iloveyou	8.0
 golden	5.0
 mksh	7.0
 aahhh	4.0
@@ -271,7 +271,7 @@ debo	4.0
 nature	5.0
 debe	7.0
 sera	4.0
-wtf	3.0
+wtf	2.0
 wth	3.0
 pity	3.0
 accident	3.0
@@ -517,7 +517,7 @@ hilang	3.0
 accomplished	6.0
 studies	3.0
 ipa	5.0
-love	6.0
+love	7.0
 prefer	6.0
 vodka	5.0
 cabelo	4.0
@@ -661,7 +661,7 @@ san	5.0
 sam	5.0
 contar	4.0
 turned	5.0
-sad	2.0
+sad	1.0
 woah	8.0
 say	10.0
 allen	5.0
@@ -1351,7 +1351,7 @@ land	10.0
 texted	4.0
 age	6.0
 walked	4.0
-hella	2.0
+hella	7.0
 verder	10.0
 fresh	6.0
 hello	7.0
@@ -1413,7 +1413,7 @@ let	5.0
 euro	8.0
 *o*	4.0
 maken	2.0
-great	6.0
+great	7.0
 gezellig	6.0
 receive	8.0
 involved	1.0
@@ -1491,7 +1491,7 @@ volto	6.0
 lengkap	4.0
 volta	5.0
 2nite	5.0
-perfect	6.0
+perfect	8.0
 kuliah	4.0
 degrees	4.0
 puerto	2.0
@@ -1632,17 +1632,17 @@ familiar	5.0
 lucky	9.0
 berarti	5.0
 =/	2.0
-=)	10.0
+=)	7.0
 =(	3.0
 smash	5.0
 lala	3.0
 taxes	2.0
 glasgow	0.0
-gbu	10.0
+gbu	8.0
 aee	6.0
 !?!	5.0
 lalu	5.0
-ohio	9.0
+ohio	7.0
 guessing	8.0
 btw	4.0
 edition	1.0
@@ -1827,7 +1827,7 @@ yikes	3.0
 saved	6.0
 \o/	4.0
 drinkin	9.0
-haters	6.0
+haters	2.0
 waar	1.0
 spin	9.0
 plezier	6.0
@@ -1950,7 +1950,7 @@ office	3.0
 muffin	5.0
 satisfied	6.0
 neta	4.0
-awful	3.0
+awful	1.0
 japan	9.0
 mayor	5.0
 somewhere	3.0
@@ -2139,7 +2139,6 @@ plis	4.0
 confirmed	8.0
 perform	2.0
 jerry	3.0
-:((	3.0
 bunny	2.0
 wheel	2.0
 nih	3.0
@@ -2240,7 +2239,7 @@ suruh	4.0
 wae	4.0
 available	4.0
 waa	0.0
-fight	7.0
+fight	3.0
 nonton	5.0
 waw	5.0
 war	7.0
@@ -2670,7 +2669,7 @@ barca	6.0
 loe	4.0
 loh	3.0
 loo	5.0
-lol	6.0
+lol	7.0
 lor	2.0
 cats	2.0
 low	4.0
@@ -2877,7 +2876,7 @@ expecting	9.0
 wachten	4.0
 it'll	4.0
 arsenal	6.0
-fucked	3.0
+fucked	2.0
 unexpected	9.0
 kapan	2.0
 natuurlijk	6.0
@@ -3336,7 +3335,7 @@ austin	8.0
 drinken	6.0
 powerful	6.0
 wayyy	4.0
-bitch	10.0
+bitch	1.0
 baru	5.0
 quality	7.0
 playlist	6.0
@@ -3347,7 +3346,7 @@ mal	3.0
 attack	5.0
 quieras	6.0
 ankle	3.0
-perfectly	6.0
+perfectly	9.0
 final	5.0
 beard	5.0
 2-0	5.0
@@ -3852,7 +3851,7 @@ iso	3.0
 arrived	2.0
 isa	2.0
 loud	7.0
-fuckin	5.0
+fuckin	3.0
 user	5.0
 naughty	6.0
 zelf	7.0
@@ -3928,7 +3927,7 @@ doy	7.0
 lijkt	8.0
 dor	2.0
 pokoknya	5.0
-annoyed	3.0
+annoyed	1.0
 dot	4.0
 lyrics	6.0
 minta	6.0
@@ -4006,7 +4005,7 @@ ting	2.0
 puta	3.0
 interest	7.0
 recien	6.0
-lovely	6.0
+lovely	8.0
 okayy	6.0
 idol	8.0
 threw	4.0
@@ -4155,7 +4154,7 @@ covers	6.0
 drive	1.0
 tosh	6.0
 awhile	5.0
-shit	4.0
+shit	2.0
 holla	6.0
 vista	4.0
 viste	5.0
@@ -4296,7 +4295,7 @@ arrive	5.0
 amber	9.0
 berat	1.0
 crazy	5.0
-fuck	4.0
+fuck	2.0
 genoeg	10.0
 kasian	2.0
 pink	5.0
@@ -4368,7 +4367,7 @@ kanina	5.0
 fuerte	5.0
 kkk	3.0
 kka	10.0
-bullshit	8.0
+bullshit	2.0
 artist	5.0
 rock	6.0
 girl	5.0
@@ -4445,7 +4444,7 @@ answering	2.0
 shocked	1.0
 >rt	2.0
 potential	0.0
-performance	3.0
+performance	6.0
 channel	5.0
 200	4.0
 pain	3.0
@@ -4597,7 +4596,7 @@ roommate	4.0
 ndak	1.0
 bottle	1.0
 deze	4.0
-money	3.0
+money	2.0
 wifey	4.0
 smith	5.0
 gausah	9.0
@@ -4632,8 +4631,8 @@ aussie	8.0
 mwah	6.0
 cramps	2.0
 seconds	2.0
-arts	2.0
-broken	3.0
+arts	8.0
+broken	1.0
 island	10.0
 mantan	0.0
 sendirian	3.0
@@ -4658,7 +4657,7 @@ morningg	7.0
 downstairs	3.0
 belated	6.0
 mooie	6.0
-romantic	6.0
+romantic	8.0
 strawberry	6.0
 romantis	10.0
 kepala	3.0
@@ -4673,7 +4672,7 @@ rapido	4.0
 film	8.0
 fill	1.0
 drivers	5.0
-saturday	5.0
+saturday	7.0
 field	9.0
 kpan	4.0
 coughing	2.0
@@ -4702,7 +4701,7 @@ shattered	3.0
 imma	2.0
 viajar	3.0
 ajj	5.0
-enjoying	6.0
+enjoying	8.0
 hellooo	7.0
 vergeten	3.0
 mornin	6.0
@@ -5059,8 +5058,8 @@ bnget	2.0
 cum	8.0
 easter	4.0
 excited	6.0
-hates	3.0
-hater	7.0
+hates	2.0
+hater	2.0
 bio	8.0
 bil	3.0
 big	7.0
@@ -5614,7 +5613,7 @@ tiba	3.0
 sleep	4.0
 hating	2.0
 putus	2.0
-hate	3.0
+hate	1.0
 poorly	2.0
 paris	4.0
 tweet	5.0
@@ -5950,7 +5949,7 @@ charlie	5.0
 uploading	6.0
 ocean	4.0
 savings	3.0
-greatest	6.0
+greatest	8.0
 mother	8.0
 hearts	6.0
 dads	5.0
@@ -6912,7 +6911,7 @@ message	5.0
 ignore	3.0
 pilihan	8.0
 ikaw	6.0
-fucking	4.0
+fucking	3.0
 1st	1.0
 streaming	4.0
 rien	6.0
@@ -7331,7 +7330,7 @@ thus	7.0
 avi	6.0
 ave	5.0
 ava	6.0
-whore	5.0
+whore	2.0
 beijos	6.0
 perhaps	5.0
 cine	7.0
@@ -7352,7 +7351,7 @@ student	5.0
 sopo	5.0
 arse	5.0
 approve	5.0
-fighting	6.0
+fighting	4.0
 gutted	2.0
 english	2.0
 terakhir	4.0
