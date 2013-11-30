@@ -68,7 +68,7 @@ class Analyzer(object):
         vals = 0
         threshold = 22.5
         for word in (tweet.lower()).split(' '):
-            val = self.comp_list.get(word,100)
+            val = self.comp_list.get(word, 100)
             if val > 0 and val < 100:
                 david['positive'] = david.get('positive') + 1
                 vals = vals + abs(val)
@@ -80,7 +80,7 @@ class Analyzer(object):
                 vals = vals + abs(val)
             else:
                 pass
-            
+
         for value in data:
             if value > 0 :
                 martin['positive'] = martin['positive'] + (value / espone(value, self.mean, self.deviation))
