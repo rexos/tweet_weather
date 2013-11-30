@@ -28,6 +28,13 @@ PORT = 5000
 
 app = Flask(__name__)
 
+@app.route('/testing')
+def runTest():
+    """
+    Method used to test
+    if the app is running
+    """
+    return 'Hello World!'
 
 @app.route('/')
 def home():
@@ -118,14 +125,19 @@ def stop():
 
 @app.route("/plot")
 def plot():
+    testing = request.args.get('testing', 0, type=int)
     if os.path.exists('data.sqlite'):
         cur = db.connect('data.sqlite').cursor()
         cur.execute('SELECT sentimentValue, weatherValue FROM tweets'
                     ' WHERE sentimentValue > 0 ORDER BY id DESC')
-        data = cur.fetchall()
-
-    x = [point[0] for point in data]
-    y = [point[1] for point in data]
+        all_fetched = cur.fetchall()
+        x = [point[0] for point in all_fetched]
+        y = [point[1] for point in all_fetched]
+    elif testing:
+        x = 0.5
+        y = 0.3
+    else:
+        return render_template('500.html', data='Database not found')
 
     fig = plt.figure()
     axis = fig.add_subplot(1, 1, 1)
@@ -134,15 +146,26 @@ def plot():
     axis.set_ylim([0, 1])
     axis.plot(xs, xs, label='Perfect Correlation', color='green')
     axis.scatter(x, y, label='Data Points', color='red')
+    plt.xlabel('sentiment')
+    plt.ylabel('weather')
     axis.legend()
 
     str_io = StringIO()
     fig.savefig(str_io, format='png')
-    data = str_io.getvalue().encode('base64')
+    img_data = str_io.getvalue().encode('base64')
     refresh = request.args.get('refresh', 0, type=int)
     if refresh:
-        return data
-    return render_template('plot.html', data=data)
+        return img_data
+    return render_template('plot.html', data=img_data)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def page_not_found(e):
+    return render_template('500.html'), 500
 
 
 
@@ -150,6 +173,7 @@ if __name__ == '__main__':
     analyzer = Analyzer()
     server = SocketIOServer(('', PORT), app, resource="socket.io")
     twThread = TweetWeather(server, analyzer, name="Tweet-Weather-Thread")
+    twThread.daemon = True
     gevent.spawn(twThread.new_post, server)
     gevent.spawn(twThread.connexion_lost, server)
     try:
