@@ -10,6 +10,7 @@ import os
 import nltk
 import re
 
+
 class Analyzer(object):
     """
     Analyzer is used to give a real value to the sentiment found
@@ -22,22 +23,22 @@ class Analyzer(object):
         """
         import zipfile
         # set of tags needed for the bag of words extraction
-        self.tags = ['JJ', 'NN', 'VB', 'NNS', 'JJR', 'JJS', 'PRP', 'RBR', 'RBS', '<3']
+        self.tags = ['JJ', 'NN', 'VB', 'NNS', 'JJR',
+                     'JJS', 'PRP', 'RBR', 'RBS', '<3']
         self.comp_list = {}
         self.afinn_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
         self.url = "https://dl.dropbox.com/u/3773091/Twitter%20Sentiment/Twitter%20sentiment%20analysis.zip"
         urllib.urlretrieve(self.afinn_url, 'word_list.zip')
         word_list_zip = zipfile.ZipFile('word_list.zip')
-        self.comp_list = {unicode(k, 'utf-8'): int(v) # reads AFINN list
+        self.comp_list = {unicode(k, 'utf-8'): int(v)  # reads AFINN list
                           for (k, v) in [line.split('\t') for line in open(word_list_zip.extract('AFINN/AFINN-111.txt'))]}
-
         script_dir = os.path.dirname(__file__)
-        with open(os.path.join(script_dir,'my_list.txt'), 'r') as comp_file:  # reads larger list
+        with open(os.path.join(script_dir, 'my_list.txt'), 'r') as comp_file:  # reads larger list
             for line in comp_file:
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(float(data[1].strip())) - 5
 
-        with open(os.path.join(script_dir,'emoticons.csv'), 'r') as file: # reads emoticons file
+        with open(os.path.join(script_dir, 'emoticons.csv'), 'r') as file:  # reads emoticons file
             for line in file:
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(data[1].strip())
@@ -57,18 +58,18 @@ class Analyzer(object):
         AFINN word-value list and using a gaussian distribution
         to compute the weight of each word
         """
-        emoticons_groups =  re.findall("([0-9'\&\-\.\/\(\)=:;]+)|((?::|;|=)(?:-)?(?:\)|D|P))|(<3)", tweet)
-        emoticons = [ x[0] for x in emoticons_groups if x[0] != ''] # we have three groups in our regexp so we need to check everyone of them
-        emoticons.extend( [ x[1] for x in emoticons_groups if x[1] != ''] )
-        emoticons.extend( [ x[2] for x in emoticons_groups if x[2] != ''] )
-        data = [ self.comp_list.get(word, 0) for word in (tweet.lower()).split(' ') ]
-        data.extend( [ self.comp_list.get(e, 0) for e in emoticons ] )
-        david = {'positive' : 0, 'negative' : 0, 'neutral' : 0}
-        martin = {'positive' : 0.0, 'negative' : 0.0, 'neutral' : 0.0}
+        emoticons_groups = re.findall("([0-9'\&\-\.\/\(\)=:;]+)|((?::|;|=)(?:-)?(?:\)|D|P))|(<3)", tweet)
+        emoticons = [x[0] for x in emoticons_groups if x[0] != '']  # we have three groups in our regexp so all need to be checked
+        emoticons.extend([x[1] for x in emoticons_groups if x[1] != ''])
+        emoticons.extend([x[2] for x in emoticons_groups if x[2] != ''])
+        data = [self.comp_list.get(word, 0) for word in (tweet.lower()).split(' ')]
+        data.extend([self.comp_list.get(e, 0) for e in emoticons])
+        david = {'positive': 0, 'negative': 0, 'neutral': 0}
+        martin = {'positive': 0.0, 'negative': 0.0, 'neutral': 0.0}
         vals = 0
         threshold = 22.5
         for word in (tweet.lower()).split(' '):
-            val = self.comp_list.get(word,100)
+            val = self.comp_list.get(word, 100)
             if val > 0 and val < 100:
                 david['positive'] = david.get('positive') + 1
                 vals = vals + abs(val)
@@ -82,9 +83,9 @@ class Analyzer(object):
                 pass
 
         for value in data:
-            if value > 0 :
+            if value > 0:
                 martin['positive'] = martin['positive'] + (value / espone(value, self.mean, self.deviation))
-            elif value < 0 :
+            elif value < 0:
                 martin['negative'] = martin['negative'] + (value / espone(value, self.mean, self.deviation))
             else:
                 martin['neutral'] = martin['neutral'] + espone(value, self.mean, self.deviation)
@@ -96,7 +97,6 @@ class Analyzer(object):
             total = (sum([tot_pos, tot_neg, tot_neu]) / vals) + threshold
         else:
             total = (sum([tot_pos, tot_neg, tot_neu])) + threshold
-
         if total > 2*threshold:
             total = 2*threshold
         elif total < 0:

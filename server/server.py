@@ -4,7 +4,7 @@ server needed by the whole web application.
 """
 
 import sys
-from flask import Flask, render_template, jsonify, Response, request
+from flask import Flask, render_template, jsonify, Response, request, abort
 from socketio.server import SocketIOServer
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
@@ -28,13 +28,6 @@ PORT = 5000
 
 app = Flask(__name__)
 
-@app.route('/testing')
-def runTest():
-    """
-    Method used to test
-    if the app is running
-    """
-    return 'Hello World!'
 
 @app.route('/')
 def home():
@@ -125,19 +118,20 @@ def stop():
 
 @app.route("/plot")
 def plot():
+    x = []
+    y = []
     testing = request.args.get('testing', 0, type=int)
+    print testing
     if os.path.exists('data.sqlite'):
+        print "ok"
         cur = db.connect('data.sqlite').cursor()
         cur.execute('SELECT sentimentValue, weatherValue FROM tweets'
                     ' WHERE sentimentValue > 0 ORDER BY id DESC')
         all_fetched = cur.fetchall()
         x = [point[0] for point in all_fetched]
         y = [point[1] for point in all_fetched]
-    elif testing:
-        x = 0.5
-        y = 0.3
-    else:
-        return render_template('500.html', data='Database not found')
+    elif not(testing):
+        abort(500)
 
     fig = plt.figure()
     axis = fig.add_subplot(1, 1, 1)
@@ -163,10 +157,10 @@ def plot():
 def page_not_found(e):
     return render_template('404.html'), 404
 
+
 @app.errorhandler(500)
 def page_not_found(e):
     return render_template('500.html'), 500
-
 
 
 if __name__ == '__main__':
