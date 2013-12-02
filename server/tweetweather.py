@@ -94,20 +94,14 @@ class TweetWeather(threading.Thread):
         of the location where the tweet has been written
         and saves the result in the database.
         """
-        connection = time.time()
         conn = db.connect('data.sqlite')
         cursor = conn.cursor()
-        print("connection : "+ str(time.time() - connection))
-        elapsed = time.time()
         score = self.analyzer.analyze(status.text)
-        print("analysis : "+ str(time.time() - elapsed))
         weather_url = self.root_weather_url % tuple(
             [str(x) for x in status.coordinates['coordinates']])
         response = urllib.urlopen(weather_url)
         try:
-            wtime = time.time()
             weather = jsn.load(response)
-            print("weather : "+ str(time.time() - wtime))
         except jsn.JSONDecodeError:
             print('Program --> Tweet not saved due to invalid weather json')
         else:
@@ -116,7 +110,6 @@ class TweetWeather(threading.Thread):
                 #print(main['main'], status.text, score)
 
                 correlation_score = abs(score-WEATHER_DICT[main['icon']])
-                saving = time.time()
                 cursor.execute("INSERT INTO tweets(sentimentValue,"
                                "weatherValue, correlationScore, weather,"
                                "latitude,longitude,infos)"
@@ -126,13 +119,10 @@ class TweetWeather(threading.Thread):
                                 status.coordinates['coordinates'][1],
                                 status.coordinates['coordinates'][0],
                                 main['description']])
-                print("save : "+ str(time.time() - saving))
-                elapsed = time.time()
                 self.new_post(score, main['main'], main['description'],
                               status.coordinates['coordinates'][1],
                               status.coordinates['coordinates'][0],
                               correlation_score)
-                print("push : "+ str(time.time() - elapsed))
                 conn.commit()
         conn.close()
 
@@ -151,11 +141,8 @@ class TweetWeather(threading.Thread):
                                     count=100, result_type="recent",
                                     include_entities=True).pages()
         while True:
-            elapsed = time.time()
             try:
-                diocristo = time.time()
                 tweets = next(tweet_pages)
-                print("gathering : "+ str(time.time() - diocristo))
             except tweepy.error.TweepError as exc:
                 if exc.message[0]['code'] == 88:  # Rate Limit Exceeded
                     print "Rate Limit Exceeded. Waiting for 15 minutes."
@@ -171,7 +158,6 @@ class TweetWeather(threading.Thread):
                 self.parse_text(filtered_tweet)
             if self.terminated:
                 break
-            print("overall : "+ str(time.time() - elapsed))
 
     def stop(self):
         """
