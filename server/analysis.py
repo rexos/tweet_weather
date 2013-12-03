@@ -38,16 +38,21 @@ class Analyzer(object):
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(float(data[1].strip())) - 5
 
+<<<<<<< HEAD
         with open(os.path.join(script_dir, 'emoticons.csv'), 'r') as file:  # reads emoticons file
             for line in file:
+=======
+        with open(os.path.join(script_dir, 'emoticons.csv'), 'r') as smiles: # reads emoticons file
+            for line in smiles:
+>>>>>>> 20f040c6b6040b25c319100093e281a6337f9cb4
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(data[1].strip())
 
         # clean temporary files on the fly
-        self.values = np.array(self.comp_list.values())
-        self.mean = np.mean(self.values)
-        self.deviation = math.sqrt(sum([pow(x - self.mean, 2) for x in self.values])
-                                   / float(len(self.values)))
+        values = np.array(self.comp_list.values())
+        self.mean = np.mean(values)
+        self.deviation = math.sqrt(sum([pow(x - self.mean, 2) for x in values])
+                                   / float(len(values)))
         os.remove('word_list.zip')
         os.remove('AFINN/AFINN-111.txt')
         os.rmdir('AFINN')
@@ -58,7 +63,7 @@ class Analyzer(object):
         AFINN word-value list and using a gaussian distribution
         to compute the weight of each word
         """
-        emoticons_groups =  re.findall("([0-9'\&\-\.\/\(\)=:;]+)|((?::|;|=)(?:-)?(?:\)|D|P))|(<3)", tweet)
+        emoticons_groups =  re.findall(r"([0-9'\&\-\.\/\(\)=:;]+)|((?::|;|=)(?:-)?(?:\)|D|P))|(<3)", tweet)
         emoticons = [ x[0] for x in emoticons_groups if x[0] != ''] # we have three groups in our regexp so we need to check everyone of them
         emoticons.extend( [ x[1] for x in emoticons_groups if x[1] != ''] )
         emoticons.extend( [ x[2] for x in emoticons_groups if x[2] != ''] )
@@ -66,34 +71,13 @@ class Analyzer(object):
         data.extend( [ self.comp_list.get(e, 0) for e in emoticons ] )
         ctg_count = {'positive' : 0, 'negative' : 0, 'neutral' : 0} # dict containing the number of positive negative and neutral words in the current tweet
         ctg_total = {'positive' : 0.0, 'negative' : 0.0, 'neutral' : 0.0} # dict containing the sum respectively for positive negative and neutral words
-        vals = 0
         threshold = 22.5
-        for word in (tweet.lower()).split(' '):
-            val = self.comp_list.get(word, 100)
-            if val > 0 and val < 100:
-                ctg_count['positive'] = ctg_count.get('positive') + 1
-                vals = vals + abs(val)
-            elif val < 0:
-                ctg_count['negative'] = ctg_count.get('negative') + 1
-                vals = vals + abs(val)
-            elif val == 0:
-                ctg_count['neutral'] = ctg_count.get('neutral') + 1
-                vals = vals + abs(val)
-            else:
-                pass
 
-        for value in data:
+        # computes categories cardinality and global sum of values of each word in tweet
+        vals = self.categories_cardinality(tweet, ctg_count)
+        # weights each category
+        tot_pos, tot_neg, tot_neu = self.weight_categories( data, ctg_total, ctg_count )
 
-            if value > 0 :
-                ctg_total['positive'] = ctg_total['positive'] + (value / espone(value, self.mean, self.deviation))
-            elif value < 0 :
-                ctg_total['negative'] = ctg_total['negative'] + (value / espone(value, self.mean, self.deviation))
-            else:
-                ctg_total['neutral'] = ctg_total['neutral'] + espone(value, self.mean, self.deviation)
-
-        tot_pos = ctg_total['positive'] * ctg_count['positive']
-        tot_neg = ctg_total['negative'] * ctg_count['negative']
-        tot_neu = ctg_total['neutral'] * ctg_count['neutral']
         if vals:
             total = (sum([tot_pos, tot_neg, tot_neu]) / vals) + threshold
         else:
@@ -105,6 +89,44 @@ class Analyzer(object):
         else:
             pass
         return total / (2*threshold)
+
+    def weight_categories(self, data, ctg_total, ctg_count):
+        """
+        Computes the weight in terms of word value of each category
+        of words ( positive, negative, neutral )
+        """
+        for value in data:
+            if value > 0 :
+                ctg_total['positive'] = ctg_total['positive'] + (value / espone(value, self.mean, self.deviation))
+            elif value < 0 :
+                ctg_total['negative'] = ctg_total['negative'] + (value / espone(value, self.mean, self.deviation))
+            else:
+                ctg_total['neutral'] = ctg_total['neutral'] + espone(value, self.mean, self.deviation)
+        tot_pos = ctg_total['positive'] * ctg_count['positive']
+        tot_neg = ctg_total['negative'] * ctg_count['negative']
+        tot_neu = ctg_total['neutral'] * ctg_count['neutral']
+        return tot_pos, tot_neg, tot_neu
+
+    def categories_cardinality(self, tweet, ctg_count):
+        """
+        Computes the cardinality in terms of number of words belonging
+        to each category ( positive, negative, neutral )
+        """
+        vals = 0
+        for word in (tweet.lower()).split(' '):
+            temp = self.comp_list.get(word, 100)
+            if temp > 0 and temp < 100:
+                ctg_count['positive'] = ctg_count.get('positive') + 1
+                vals = vals + abs(temp)
+            elif temp < 0:
+                ctg_count['negative'] = ctg_count.get('negative') + 1
+                vals = vals + abs(temp)
+            elif temp == 0:
+                ctg_count['neutral'] = ctg_count.get('neutral') + 1
+                vals = vals + abs(temp)
+            else:
+                pass
+        return vals
 
     def parse(self, tweet):
         """
