@@ -21,9 +21,6 @@ class Analyzer(object):
         management hard coded.
         """
         import zipfile
-        # set of tags needed for the bag of words extraction
-        self.tags = ['JJ', 'NN', 'VB', 'NNS', 'JJR',
-                     'JJS', 'PRP', 'RBR', 'RBS', '<3']
         self.comp_list = {}
         self.afinn_url = "http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip"
         self.url = "https://dl.dropbox.com/u/3773091/Twitter%20Sentiment/Twitter%20sentiment%20analysis.zip"
@@ -71,7 +68,7 @@ class Analyzer(object):
         vals = self.categories_cardinality(tweet, ctg_count)
         # weights each category
         tot_pos, tot_neg, tot_neu = self.weight_categories(data, ctg_total, ctg_count)
-
+        print( tot_pos, tot_neg, tot_neu )
         if vals:
             total = (sum([tot_pos, tot_neg, tot_neu]) / vals) + threshold
         else:
@@ -104,7 +101,8 @@ class Analyzer(object):
     def categories_cardinality(self, tweet, ctg_count):
         """
         Computes the cardinality in terms of number of words belonging
-        to each category ( positive, negative, neutral )
+        to each category ( positive, negative, neutral ) returns also
+        the sum of the absolute values of each word.
         """
         vals = 0
         for word in (tweet.lower()).split(' '):
