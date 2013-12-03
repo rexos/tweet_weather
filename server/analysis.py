@@ -38,13 +38,8 @@ class Analyzer(object):
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(float(data[1].strip())) - 5
 
-<<<<<<< HEAD
-        with open(os.path.join(script_dir, 'emoticons.csv'), 'r') as file:  # reads emoticons file
-            for line in file:
-=======
         with open(os.path.join(script_dir, 'emoticons.csv'), 'r') as smiles: # reads emoticons file
             for line in smiles:
->>>>>>> 20f040c6b6040b25c319100093e281a6337f9cb4
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(data[1].strip())
 
