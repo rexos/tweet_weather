@@ -64,59 +64,15 @@ def display_map():
     return render_template('map.html')
 
 
-@app.route('/socket.io/<path:remaining>')
-def socketio(request):
-    """
-    This route configures the WebSocket
-    used to let the client know that new objects
-    were mined
-    """
-    try:
-        socketio_manage(request.environ,
-                        {'/new_posts': BaseNamespace},
-                        request)
-    except:
-        app.logger.error("Exception while handling socketio connection",
-                         exc_info=True)
-    return Response()
-
-
-def check_conn():
-    """
-    Checks whether a working Internet connection is available
-    """
-    try:
-        urllib2.urlopen('http://74.125.228.100')  # Google IP (no DNS lookup)
-        return True
-    except urllib2.URLError:
-        pass
-    return False
-
-
-@app.route('/start')
-def start():
-    """
-    Starts the data mining thread if an internet connection is available
-    """
-    if check_conn():
-        twThread.start()
-        return jsonify('true')
-    else:
-        twThread.connexion_lost("Absent Internet Access")
-        return jsonify('false')
-
-
-@app.route('/stop')
-def stop():
-    """
-    Stops the data mining thread
-    """
-    twThread.stop()
-    return jsonify('true')
-
-
 @app.route("/plot")
 def plot():
+    """
+    This page displays a scatter plot of all gathered tweets
+    The x-axis is the sentiment value.
+    The y-axis is the weather value.
+    The closer points are to the 'identity' line,
+    the closer they fit our hypothesis
+    """
     x = []
     y = []
     testing = request.args.get('testing', 0, type=int)
@@ -152,26 +108,86 @@ def plot():
     return render_template('plot.html', data=img_data)
 
 
+@app.route('/socket.io/<path:remaining>')
+def socketio(request):
+    """
+    This route configures the WebSocket
+    used to let the client know that new objects
+    were mined
+    """
+    try:
+        socketio_manage(request.environ,
+                        {'/new_posts': BaseNamespace},
+                        request)
+    except:
+        app.logger.error("Exception while handling socketio connection",
+                         exc_info=True)
+    return Response()
+
+
+def check_conn():
+    """
+    Checks whether a working Internet connection is available
+    """
+    try:
+        urllib2.urlopen('http://74.125.228.100')  # Google IP (no DNS lookup)
+        return True
+    except urllib2.URLError:
+        pass
+    return False
+
+
+@app.route('/start')
+def start():
+    """
+    Starts the data mining thread if an internet connection is available
+    """
+    if check_conn():
+        tw_thread.start()
+        return jsonify('true')
+    else:
+        tw_thread.connexion_lost("Absent Internet Access")
+        return jsonify('false')
+
+
+@app.route('/stop')
+def stop():
+    """
+    Stops the data mining thread
+    """
+    tw_thread.stop()
+    return jsonify('true')
+
+
 @app.errorhandler(404)
-def page_not_found(e):
+def page_not_found(exc):
+    """
+    404 error handler
+    used if a non existant route
+    is requested
+    """
     return render_template('404.html'), 404
 
 
 @app.errorhandler(500)
-def page_not_found(e):
+def page_not_found(exc):
+    """
+    500 error handler
+    used if there is a server error
+    """
     return render_template('500.html'), 500
 
 
 if __name__ == '__main__':
     analyzer = Analyzer()
     server = SocketIOServer(('', PORT), app, resource="socket.io")
-    twThread = TweetWeather(server, analyzer, name="Tweet-Weather-Thread")
-    twThread.daemon = True
-    gevent.spawn(twThread.new_post, server)
-    gevent.spawn(twThread.connexion_lost, server)
+    tw_thread = TweetWeather(server, analyzer, name="Tweet-Weather-Thread")
+    tw_thread.daemon = True
+    gevent.spawn(tw_thread.new_post, server)
+    gevent.spawn(tw_thread.connexion_lost, server)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        twThread.stop()
+        tw_thread.stop()
         server.stop()
         sys.exit()

@@ -165,6 +165,7 @@ class TweetWeather(threading.Thread):
         """
         self.terminated = True
 
+
 def init_database():
     """
     Initializes an sqlite database where evaluated tweets

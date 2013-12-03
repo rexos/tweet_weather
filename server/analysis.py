@@ -7,7 +7,6 @@ import numpy as np
 import math
 import urllib
 import os
-import nltk
 import re
 
 
@@ -38,7 +37,7 @@ class Analyzer(object):
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(float(data[1].strip())) - 5
 
-        with open(os.path.join(script_dir, 'emoticons.csv'), 'r') as smiles: # reads emoticons file
+        with open(os.path.join(script_dir, 'emoticons.csv'), 'r') as smiles:  # reads emoticons file
             for line in smiles:
                 data = line.split('\t')
                 self.comp_list[data[0]] = int(data[1].strip())
@@ -58,20 +57,20 @@ class Analyzer(object):
         AFINN word-value list and using a gaussian distribution
         to compute the weight of each word
         """
-        emoticons_groups =  re.findall(r"([0-9'\&\-\.\/\(\)=:;]+)|((?::|;|=)(?:-)?(?:\)|D|P))|(<3)", tweet)
-        emoticons = [ x[0] for x in emoticons_groups if x[0] != ''] # we have three groups in our regexp so we need to check everyone of them
-        emoticons.extend( [ x[1] for x in emoticons_groups if x[1] != ''] )
-        emoticons.extend( [ x[2] for x in emoticons_groups if x[2] != ''] )
-        data = [ self.comp_list.get(word, 0) for word in tweet.split(' ') ]
-        data.extend( [ self.comp_list.get(e, 0) for e in emoticons ] )
-        ctg_count = {'positive' : 0, 'negative' : 0, 'neutral' : 0} # dict containing the number of positive negative and neutral words in the current tweet
-        ctg_total = {'positive' : 0.0, 'negative' : 0.0, 'neutral' : 0.0} # dict containing the sum respectively for positive negative and neutral words
+        emoticons_groups = re.findall(r"([0-9'\&\-\.\/\(\)=:;]+)|((?::|;|=)(?:-)?(?:\)|D|P))|(<3)", tweet)
+        emoticons = [x[0] for x in emoticons_groups if x[0] != '']  # we have three groups in our regexp so we need to check everyone of them
+        emoticons.extend([x[1] for x in emoticons_groups if x[1] != ''])
+        emoticons.extend([x[2] for x in emoticons_groups if x[2] != ''])
+        data = [self.comp_list.get(word, 0) for word in tweet.split(' ')]
+        data.extend([self.comp_list.get(e, 0) for e in emoticons])
+        ctg_count = {'positive': 0, 'negative': 0, 'neutral': 0}  # dict containing the number of positive negative and neutral words in the current tweet
+        ctg_total = {'positive': 0.0, 'negative': 0.0, 'neutral': 0.0}  # dict containing the sum respectively for positive negative and neutral words
         threshold = 22.5
 
         # computes categories cardinality and global sum of values of each word in tweet
         vals = self.categories_cardinality(tweet, ctg_count)
         # weights each category
-        tot_pos, tot_neg, tot_neu = self.weight_categories( data, ctg_total, ctg_count )
+        tot_pos, tot_neg, tot_neu = self.weight_categories(data, ctg_total, ctg_count)
 
         if vals:
             total = (sum([tot_pos, tot_neg, tot_neu]) / vals) + threshold
@@ -91,9 +90,9 @@ class Analyzer(object):
         of words ( positive, negative, neutral )
         """
         for value in data:
-            if value > 0 :
+            if value > 0:
                 ctg_total['positive'] = ctg_total['positive'] + (value / espone(value, self.mean, self.deviation))
-            elif value < 0 :
+            elif value < 0:
                 ctg_total['negative'] = ctg_total['negative'] + (value / espone(value, self.mean, self.deviation))
             else:
                 ctg_total['neutral'] = ctg_total['neutral'] + espone(value, self.mean, self.deviation)
