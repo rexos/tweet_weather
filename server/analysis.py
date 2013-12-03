@@ -128,17 +128,6 @@ class Analyzer(object):
                 pass
         return vals
 
-    def parse(self, tweet):
-        """
-        Extracts the most meaningful words (bag of words) from the
-        tweets body text and returns a list composed
-        by them. Uses the nltk module to achieve this.
-        """
-        tokens = nltk.word_tokenize(tweet)
-        tagged = nltk.pos_tag(tokens)
-        parsed = [word for (word, tag) in tagged if tag in self.tags]
-        return parsed
-
 
 def espone(value, mean, deviation):
     """
