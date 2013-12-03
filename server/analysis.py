@@ -58,41 +58,42 @@ class Analyzer(object):
         AFINN word-value list and using a gaussian distribution
         to compute the weight of each word
         """
-        emoticons_groups = re.findall("([0-9'\&\-\.\/\(\)=:;]+)|((?::|;|=)(?:-)?(?:\)|D|P))|(<3)", tweet)
-        emoticons = [x[0] for x in emoticons_groups if x[0] != '']  # we have three groups in our regexp so all need to be checked
-        emoticons.extend([x[1] for x in emoticons_groups if x[1] != ''])
-        emoticons.extend([x[2] for x in emoticons_groups if x[2] != ''])
-        data = [self.comp_list.get(word, 0) for word in (tweet.lower()).split(' ')]
-        data.extend([self.comp_list.get(e, 0) for e in emoticons])
-        david = {'positive': 0, 'negative': 0, 'neutral': 0}
-        martin = {'positive': 0.0, 'negative': 0.0, 'neutral': 0.0}
+        emoticons_groups =  re.findall("([0-9'\&\-\.\/\(\)=:;]+)|((?::|;|=)(?:-)?(?:\)|D|P))|(<3)", tweet)
+        emoticons = [ x[0] for x in emoticons_groups if x[0] != ''] # we have three groups in our regexp so we need to check everyone of them
+        emoticons.extend( [ x[1] for x in emoticons_groups if x[1] != ''] )
+        emoticons.extend( [ x[2] for x in emoticons_groups if x[2] != ''] )
+        data = [ self.comp_list.get(word, 0) for word in tweet.split(' ') ]
+        data.extend( [ self.comp_list.get(e, 0) for e in emoticons ] )
+        ctg_count = {'positive' : 0, 'negative' : 0, 'neutral' : 0} # dict containing the number of positive negative and neutral words in the current tweet
+        ctg_total = {'positive' : 0.0, 'negative' : 0.0, 'neutral' : 0.0} # dict containing the sum respectively for positive negative and neutral words
         vals = 0
         threshold = 22.5
         for word in (tweet.lower()).split(' '):
             val = self.comp_list.get(word, 100)
             if val > 0 and val < 100:
-                david['positive'] = david.get('positive') + 1
+                ctg_count['positive'] = ctg_count.get('positive') + 1
                 vals = vals + abs(val)
             elif val < 0:
-                david['negative'] = david.get('negative') + 1
+                ctg_count['negative'] = ctg_count.get('negative') + 1
                 vals = vals + abs(val)
             elif val == 0:
-                david['neutral'] = david.get('neutral') + 1
+                ctg_count['neutral'] = ctg_count.get('neutral') + 1
                 vals = vals + abs(val)
             else:
                 pass
 
         for value in data:
-            if value > 0:
-                martin['positive'] = martin['positive'] + (value / espone(value, self.mean, self.deviation))
-            elif value < 0:
-                martin['negative'] = martin['negative'] + (value / espone(value, self.mean, self.deviation))
-            else:
-                martin['neutral'] = martin['neutral'] + espone(value, self.mean, self.deviation)
 
-        tot_pos = martin['positive'] * david['positive']
-        tot_neg = martin['negative'] * david['negative']
-        tot_neu = martin['neutral'] * david['neutral']
+            if value > 0 :
+                ctg_total['positive'] = ctg_total['positive'] + (value / espone(value, self.mean, self.deviation))
+            elif value < 0 :
+                ctg_total['negative'] = ctg_total['negative'] + (value / espone(value, self.mean, self.deviation))
+            else:
+                ctg_total['neutral'] = ctg_total['neutral'] + espone(value, self.mean, self.deviation)
+
+        tot_pos = ctg_total['positive'] * ctg_count['positive']
+        tot_neg = ctg_total['negative'] * ctg_count['negative']
+        tot_neu = ctg_total['neutral'] * ctg_count['neutral']
         if vals:
             total = (sum([tot_pos, tot_neg, tot_neu]) / vals) + threshold
         else:

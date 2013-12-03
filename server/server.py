@@ -10,7 +10,6 @@ from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
 from pysqlite2 import dbapi2 as db
 import gevent
-import cProfile
 import os
 from analysis import Analyzer
 import matplotlib

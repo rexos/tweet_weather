@@ -107,10 +107,9 @@ class TweetWeather(threading.Thread):
         else:
             if 'weather' in weather.keys():
                 main = weather['weather'][0]
-                print(main['main'], status.text, score)
+                #print(main['main'], status.text, score)
 
                 correlation_score = abs(score-WEATHER_DICT[main['icon']])
-
                 cursor.execute("INSERT INTO tweets(sentimentValue,"
                                "weatherValue, correlationScore, weather,"
                                "latitude,longitude,infos)"
@@ -165,7 +164,6 @@ class TweetWeather(threading.Thread):
         Stops the thread
         """
         self.terminated = True
-
 
 def init_database():
     """

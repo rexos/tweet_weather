@@ -35,7 +35,8 @@ class TestAnalysis(object):
         assert ana.analyze("yahoo yahoo yahoo") == 1.0
         assert ana.analyze("zzz zzz zzz zzz zzz") == 0.0
 
-    def test_analyze_judgement_more(self):
+    def test_analyze_judgement_weight(self):
         from analysis import Analyzer
         ana = Analyzer()
-        assert ana.analyze("i am so happy, great day :D") > ana.analyze("i am so happy :D") and ana.analyze("so sad, feeling depressed :'(") < ana.analyze("so depressed :'(")
+        assert ana.analyze("i am so happy, great day :D") > ana.analyze("i am so happy :D")
+        assert ana.analyze("so sad, feeling depressed :'(") < ana.analyze("so depressed :'(")
