@@ -4,7 +4,7 @@ server needed by the whole web application.
 """
 
 import sys
-from flask import Flask, render_template, jsonify, Response, request, abort
+from flask import Flask, render_template, jsonify, Response, request
 from socketio.server import SocketIOServer
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
@@ -69,9 +69,9 @@ def plot():
     The closer points are to the 'identity' line,
     the closer they fit our hypothesis
     """
-    scatterPlot = ScatterPlot(1)
-    scatterPlot.set_data()
-    img_data = scatterPlot.get_image_data()
+    scatter_plot = ScatterPlot(1)
+    scatter_plot.load_data()
+    img_data = scatter_plot.get_image_data()
     refresh = request.args.get('refresh', 0, type=int)
     if refresh:
         return img_data
@@ -155,6 +155,7 @@ if __name__ == '__main__':
     tw_thread.daemon = True
     gevent.spawn(tw_thread.new_post, server)
     gevent.spawn(tw_thread.connexion_lost, server)
+    print "Application Started: http://localhost:5000"
     try:
         server.serve_forever()
     except KeyboardInterrupt:

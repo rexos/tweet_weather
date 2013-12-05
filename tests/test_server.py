@@ -1,32 +1,49 @@
-import os, sys
+import os
+import sys
+MY_PATH = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, MY_PATH + '/../server')
 import server
-import pytest
-from pysqlite2 import dbapi2 as db
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath + '/../server')
+
 
 class TestFlaskServer(object):
+    """
+    Testing a part of the Flask webserver
+    """
 
     def setup(self):
+        """
+        Called at the beginning of the test module
+        Configures the Flask Test Client
+        """
         server.app.config['TESTING'] = True
         self.app = server.app.test_client()
 
     def test_http_routes(self):
-        rv = self.app.get('/')
-        assert rv.status_code == 200
-        rv = self.app.get('/list_data')
-        assert rv.status_code == 200
-        rv = self.app.get('/map')
-        assert rv.status_code == 200
-        rv = self.app.get('/plot')
-        assert rv.status_code
+        """
+        Tests that all routes deliver the
+        pages without errors
+        """
+        response = self.app.get('/')
+        assert response.status_code == 200
+        response = self.app.get('/list_data')
+        assert response.status_code == 200
+        response = self.app.get('/map')
+        assert response.status_code == 200
+        response = self.app.get('/plot')
+        assert response.status_code == 200
 
     def test_error_handlers(self):
-        rv = self.app.get('/randomurl')
-        assert rv.status_code == 404
-        rv = self.app.get('/plot?refresh=1')
-        assert rv.status_code == 500
+        """
+        Testing a random URL to
+        catch a 404 HTTP errors
+        """
+        response = self.app.get('/randomurl')
+        assert response.status_code == 404
 
     def test_plot(self):
-        rv = self.app.get('/plot?refresh=1&testing=1')
-        assert len(rv.data) > 0
+        """
+        Testing the reception of the image
+        data when an ajax request is sent
+        """
+        response = self.app.get('/plot?refresh=1')
+        assert len(response.data) > 0

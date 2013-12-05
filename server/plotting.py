@@ -24,7 +24,7 @@ class ScatterPlot(object):
         self.x = []
         self.y = []
 
-    def set_data(self):
+    def load_data(self):
         """
         Gets all data available
         from the database
@@ -36,6 +36,16 @@ class ScatterPlot(object):
             all_fetched = cur.fetchall()
             self.x = [point[0] for point in all_fetched]
             self.y = [point[1] for point in all_fetched]
+            return True
+        return False
+
+    def set_data(self, x, y):
+        """
+        Sets x and y from given Lists
+        Used for testing purposes
+        """
+        self.x = list(x)
+        self.y = list(y)
 
     def get_fit_function(self):
         """
@@ -68,7 +78,6 @@ class ScatterPlot(object):
 
         axis.plot(xs, xs,
                   label='Perfect Correlation', color='green')
-        self.get_image_data()
         fit_fn = self.get_fit_function()
         if (fit_fn):
             axis.plot(xs, fit_fn(xs),

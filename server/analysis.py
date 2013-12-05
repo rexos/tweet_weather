@@ -68,7 +68,6 @@ class Analyzer(object):
         vals = self.categories_cardinality(tweet, ctg_count)
         # weights each category
         tot_pos, tot_neg, tot_neu = self.weight_categories(data, ctg_total, ctg_count)
-        print( tot_pos, tot_neg, tot_neu )
         if vals:
             total = (sum([tot_pos, tot_neg, tot_neu]) / vals) + threshold
         else:
@@ -116,8 +115,6 @@ class Analyzer(object):
             elif temp == 0:
                 ctg_count['neutral'] = ctg_count.get('neutral') + 1
                 vals = vals + abs(temp)
-            else:
-                pass
         return vals
 
 
