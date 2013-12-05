@@ -18,7 +18,7 @@ class TestFlaskServer(object):
         assert rv.status_code == 200
         rv = self.app.get('/map')
         assert rv.status_code == 200
-        rv = self.app.get('/plot?testing=1')
+        rv = self.app.get('/plot')
         assert rv.status_code
 
     def test_error_handlers(self):

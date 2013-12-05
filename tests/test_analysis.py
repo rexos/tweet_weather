@@ -8,16 +8,6 @@ class TestAnalysis(object):
         from analysis import espone
         assert espone(0,0,1) == 1.0
 
-    def test_parse(self):
-        from analysis import Analyzer
-        ana = Analyzer()
-        assert ana.parse("going to the mall now") == ['mall']
-
-    def test_parse_empty(self):
-        from analysis import Analyzer
-        ana = Analyzer()
-        assert ana.parse("going now") == []
-
     def test_analyze_empty(self):
         from analysis import Analyzer
         ana = Analyzer()

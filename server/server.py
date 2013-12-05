@@ -12,11 +12,7 @@ from pysqlite2 import dbapi2 as db
 import gevent
 import os
 from analysis import Analyzer
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import numpy as np
-from cStringIO import StringIO
+from plotting import ScatterPlot
 import urllib2
 from tweetweather import TweetWeather
 
@@ -73,35 +69,9 @@ def plot():
     The closer points are to the 'identity' line,
     the closer they fit our hypothesis
     """
-    x = []
-    y = []
-    testing = request.args.get('testing', 0, type=int)
-    print testing
-    if os.path.exists('data.sqlite'):
-        print "ok"
-        cur = db.connect('data.sqlite').cursor()
-        cur.execute('SELECT sentimentValue, weatherValue FROM tweets'
-                    ' WHERE sentimentValue > 0 ORDER BY id DESC')
-        all_fetched = cur.fetchall()
-        x = [point[0] for point in all_fetched]
-        y = [point[1] for point in all_fetched]
-    elif not(testing):
-        abort(500)
-
-    fig = plt.figure()
-    axis = fig.add_subplot(1, 1, 1)
-    xs = np.linspace(0, 1, 1000)
-    axis.set_xlim([0, 1])
-    axis.set_ylim([0, 1])
-    axis.plot(xs, xs, label='Perfect Correlation', color='green')
-    axis.scatter(x, y, label='Data Points', color='red')
-    plt.xlabel('sentiment')
-    plt.ylabel('weather')
-    axis.legend()
-
-    str_io = StringIO()
-    fig.savefig(str_io, format='png')
-    img_data = str_io.getvalue().encode('base64')
+    scatterPlot = ScatterPlot(1)
+    scatterPlot.set_data()
+    img_data = scatterPlot.get_image_data()
     refresh = request.args.get('refresh', 0, type=int)
     if refresh:
         return img_data

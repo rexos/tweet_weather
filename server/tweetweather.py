@@ -17,22 +17,18 @@ WEATHER_APPID = "&APPID=4e04cba42b432a01c4226e186f3d23d2"
 
 '''
 Dictionary used to map a weather icon to a
-weather "score" from 0 (worse) to 8 (best).
-Night weathers are never assumed better than
-the "Broken Clouds" score of day weathers.
+weather "score" from 0 (worse) to 7 (best).
+Night weathers (with no rain) as well as snow are considered neutral.
 The dictionary is normalized to fit in the
 [0,1] range.
-TO DO : Snow is being ranked the worst, which is
-probably not correct as snow often triggers
-positive reactions. Should it be moved ?
 '''
-WEATHER_DICT = {'13d': 0, '11d': 1, '09d': 2,
-                '10d': 3, '50d': 4, '04d': 5,
-                '03d': 6, '02d': 7, '01d': 8,
-                '13n': 0, '11n': 1, '09n': 2,
-                '10n': 3, '50n': 4, '04n': 5,
-                '03n': 5, '02n': 5, '01n': 5}
-WEATHER_DICT = {k: float(v)/8 for (k, v) in WEATHER_DICT.iteritems()}
+WEATHER_DICT = {'13d': 3.5, '11d': 0, '09d': 1,
+                '10d': 2, '50d': 3, '04d': 4,
+                '03d': 5, '02d': 6, '01d': 7,
+                '13n': 3.5, '11n': 0, '09n': 1,
+                '10n': 2, '50n': 3, '04n': 3.5,
+                '03n': 3.5, '02n': 3.5, '01n': 3.5}
+WEATHER_DICT = {k: float(v)/7 for (k, v) in WEATHER_DICT.iteritems()}
 
 
 class TweetWeather(threading.Thread):
